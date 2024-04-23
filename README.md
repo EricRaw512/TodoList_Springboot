@@ -74,24 +74,120 @@ Response Body
 }
 ```
 _____________________________________________________________________
-## Create Checklist
+## Delete Checklist
 | Header | Description |
 | :--- | :--- |
 | `Header` | `Bearer {token} (JWT token obtained from login)` |
 
 ```http
-POST /api/checklist
+DELETE /api/checklist/{checklistId}
+```
+_____________________________________________________________________
+## Get All Checklist Items for a Checklist
+| Header | Description |
+| :--- | :--- |
+| `Header` | `Bearer {token} (JWT token obtained from login)` |
+
+```http
+GET /api/checklist/{checklistId}/item
+```
+Response Body
+```javascript
+[
+  {
+    "id": number,
+    "itemName": "string",
+    "completed": boolean
+  },
+  ...
+]
+```
+_____________________________________________________________________
+## Create Checklist Item
+| Header | Description |
+| :--- | :--- |
+| `Header` | `Bearer {token} (JWT token obtained from login)` |
+
+```http
+POST /api/checklist/{checklistId}/item
 ```
 Request Body
 ```javascript
 {
-  "name": "string"
+  "itemName": "string"
 }
 ```
 Response Body
 ```javascript
 {
   "id": number,
-  "name": "string",
+  "itemName": "string",
+  "completed": boolean
+}
+```
+_____________________________________________________________________
+## Get Checklist Item
+| Header | Description |
+| :--- | :--- |
+| `Header` | `Bearer {token} (JWT token obtained from login)` |
+
+```http
+GET /api/checklist/{checklistId}/item/{checklistItemId}
+```
+Response Body
+```javascript
+{
+  "id": number,
+  "itemName": "string",
+  "completed": boolean
+}
+```
+_____________________________________________________________________
+## Update Checklist Item Status
+| Header | Description |
+| :--- | :--- |
+| `Header` | `Bearer {token} (JWT token obtained from login)` |
+
+```http
+PUT /api/checklist/{checklistId}/item/{checklistItemId}
+```
+Response Body
+```javascript
+{
+  "id": number,
+  "itemName": "string",
+  "completed": boolean
+}
+```
+_____________________________________________________________________
+## Delete Checklist Item
+| Header | Description |
+| :--- | :--- |
+| `Header` | `Bearer {token} (JWT token obtained from login)` |
+
+```http
+DELETE /api/checklist/{checklistId}/item/{checklistItemId}
+```
+_____________________________________________________________________
+## Rename Checklist Item
+| Header | Description |
+| :--- | :--- |
+| `Header` | `Bearer {token} (JWT token obtained from login)` |
+
+```http
+PUT /api/checklist/{checklistId}/item/rename/{checklistItemId}
+```
+Request Body
+```javascript
+{
+  "itemName": "string"
+}
+```
+Response Body
+```javascript
+{
+  "id": number,
+  "itemName": "string",
+  "completed": boolean
 }
 ```
