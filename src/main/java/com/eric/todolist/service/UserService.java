@@ -1,11 +1,11 @@
 package com.eric.todolist.service;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.eric.todolist.dao.UserRepository;
-import com.eric.todolist.model.User;
+import com.eric.todolist.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -13,11 +13,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService{
 
-    private UserRepository userRepository;
-    private BCryptPasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public User loadUserByUsername(String username) {
-        return userRepository.findByUserName(username).orElse(null);
+        return userRepository.findByUsername(username).orElse(null);
     }
 
     public User authenticateUser(String username, String password) {
@@ -34,7 +34,8 @@ public class UserService implements UserDetailsService{
         //throw badRequestException if user is already exist
         User newUser = new User();
         newUser.setUsername(username);
-        newUser.setPassword(password);
+        String encodedPassword = passwordEncoder.encode(password);
+        newUser.setPassword(encodedPassword);
         userRepository.save(newUser);
     }
     

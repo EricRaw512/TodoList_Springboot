@@ -4,9 +4,9 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.eric.todolist.model.User;
+import com.eric.todolist.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Integer>{
     
-    Optional<User> findByUserName(String username);
+    Optional<User> findByUsername(String username);
 }

@@ -6,19 +6,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
-import com.eric.todolist.model.User;
+import com.eric.todolist.entity.User;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+@Service
 public class JwtService {
     
     //Store it in environment not here! ok
-    private String secretKey = "402967675642d720aad80db564db2aef6fc7a8de33b5f3b064ff02df705901075834552b5168fbca7407201329cec7b42bd7a0b13da56fa3c4ce5526a4069919f05dfa422b5af40c7da80d1504829b1877df4abe7b20d53dbc6e185bacb1841e5272fd0edff69c621744206962e1f7893707cdc6e7d0766ded9a2b8dd9999f718c380dc40bc585ad5b026493c7de131104394d8152bc9ce0fbd00916d27d91906266aba996c70d044c4fa97e7561ae204680bbe7e3d1ff8e68e22f79745db6ea4895b4cfc05682a724d644aaed2179185792505a163ebe20b3bf7bf176686a5c67eba884ea9674031b2d34320755d30fdf5ba2b2763af5e2d04ca1868426d8fd";
-    private long expiration= 120_000;
+    private String secretKey = "68745C17B3A56AD2723096E2BD6D7BE42603CB1991EBF577DDE3B6C86D781DBE";
+    private long expiration= 6_000_000;
 
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.eric.todolist.dto.JwtResponse;
 import com.eric.todolist.dto.UserLoginRequest;
 import com.eric.todolist.dto.UserRegistrationRequest;
-import com.eric.todolist.model.User;
+import com.eric.todolist.entity.User;
 import com.eric.todolist.service.JwtService;
 import com.eric.todolist.service.UserService;
 
@@ -20,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api")
 public class AuthenticationController {
     
-    private UserService userService;
-    private JwtService jwtService;
+    private final UserService userService;
+    private final JwtService jwtService;
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody UserLoginRequest loginRequest) {

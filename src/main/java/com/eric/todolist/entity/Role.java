@@ -1,4 +1,4 @@
-package com.eric.todolist.model;
+package com.eric.todolist.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 

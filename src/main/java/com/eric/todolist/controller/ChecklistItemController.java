@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.eric.todolist.model.ChecklistItem;
+import com.eric.todolist.dto.ChecklistItemDTO;
+import com.eric.todolist.entity.ChecklistItem;
 import com.eric.todolist.service.ChecklistItemService;
 import com.eric.todolist.service.JwtService;
 
@@ -24,12 +25,12 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/checklist/{checklistId}/item")
 public class ChecklistItemController {
     
-    private ChecklistItemService checklistItemService;
-    private JwtService jwtService;
+    private final ChecklistItemService checklistItemService;
+    private final JwtService jwtService;
     
     @GetMapping
     public ResponseEntity<List<ChecklistItem>> getAllChecklistItems(@RequestHeader("Authorization") String authorization, @PathVariable int checklistId) {
-        String username = jwtService.extractUsername(authorization);
+        String username = jwtService.extractUsername(authorization.substring(7));
         if (username == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -43,19 +44,23 @@ public class ChecklistItemController {
     }
 
     @PostMapping
-    public ResponseEntity<ChecklistItem> createChecklistItem(@RequestHeader("Authorization") String authorization, @PathVariable int checklistId, @RequestBody ChecklistItem checklistItem) {
-        String username = jwtService.extractUsername(authorization);
+    public ResponseEntity<ChecklistItem> createChecklistItem(@RequestHeader("Authorization") String authorization, @PathVariable int checklistId, @RequestBody ChecklistItemDTO checklistItemDTO) {
+        String username = jwtService.extractUsername(authorization.substring(7));
         if (username == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        ChecklistItem newChecklistItem = checklistItemService.createChecklistItem(checklistId, checklistItem, username);
+        ChecklistItem newChecklistItem = checklistItemService.createChecklistItem(checklistId, checklistItemDTO.getItemName(), username);
+        if (newChecklistItem == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
         return ResponseEntity.ok(newChecklistItem);
     }
 
     @GetMapping("/{checklistItemId}")
     public ResponseEntity<ChecklistItem> getChecklistItem(@RequestHeader("Authorization") String authorization, @PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId) {
-        String username = jwtService.extractUsername(authorization);
+        String username = jwtService.extractUsername(authorization.substring(7));
         if (username == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -70,12 +75,12 @@ public class ChecklistItemController {
 
     @PutMapping("/{checklistItemId}")
     public ResponseEntity<ChecklistItem> updateChecklistItemStatus(@RequestHeader("Authorization") String authorization, @PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId) {
-        String username = jwtService.extractUsername(authorization);
+        String username = jwtService.extractUsername(authorization.substring(7));
         if (username == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        ChecklistItem checklistItem = checklistItemService.updateCheckListItem(checklistId, checklistItemId, username);
+        ChecklistItem checklistItem = checklistItemService.updateCheckListItemStatus(checklistId, checklistItemId, username);
         if (checklistItem == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -85,13 +90,13 @@ public class ChecklistItemController {
 
     @DeleteMapping("/{checklistItemId}")
     public ResponseEntity<Void> deleteChecklistItem(@RequestHeader("Authorization") String authorization, @PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId) {
-        String username = jwtService.extractUsername(authorization);
+        String username = jwtService.extractUsername(authorization.substring(7));
         if (username == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        ChecklistItem checklistItem = checklistItemService.deleteCheckListItem(checklistId, checklistItemId, username);
-        if (checklistItem == null) {
+        boolean deleted = checklistItemService.deleteCheckListItem(checklistId, checklistItemId, username);
+        if (!deleted) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -100,13 +105,13 @@ public class ChecklistItemController {
 
     @PutMapping("/rename/{checklistItemId}")
     public ResponseEntity<ChecklistItem> renameChecklistItem(@RequestHeader("Authorization") String authorization, @PathVariable("checklistId") int checklistId,
-                        @PathVariable("checklistItemId") int checklistItemId, @RequestBody ChecklistItem checklistItem) {
-        String username = jwtService.extractUsername(authorization);
+                        @PathVariable("checklistItemId") int checklistItemId, @RequestBody ChecklistItemDTO checklistItemDTO) {
+        String username = jwtService.extractUsername(authorization.substring(7));
         if (username == null) {
             return ResponseEntity.badRequest().build();
         }
         
-        ChecklistItem updatedChecklistItem = checklistItemService.updateCheckListItem(checklistId, checklistItemId, checklistItem, username);
+        ChecklistItem updatedChecklistItem = checklistItemService.updateCheckListItem(checklistId, checklistItemId, checklistItemDTO.getItemName(), username);
         if (updatedChecklistItem == null) {
             return ResponseEntity.badRequest().build();
         }
