@@ -3,8 +3,6 @@ package com.eric.todolist.service;
 import java.util.List;
 import java.util.Optional;
 
-import javax.naming.NameNotFoundException;
-
 import org.springframework.stereotype.Service;
 
 import com.eric.todolist.dao.ChecklistRepository;

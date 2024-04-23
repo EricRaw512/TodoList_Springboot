@@ -9,7 +9,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.eric.todolist.model.User;
 import com.eric.todolist.service.JwtService;
 import com.eric.todolist.service.UserService;
 
