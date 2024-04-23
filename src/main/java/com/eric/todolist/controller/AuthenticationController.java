@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
-public class ApiController {
+public class AuthenticationController {
     
     private UserService userService;
     private JwtService jwtService;
@@ -46,5 +46,4 @@ public class ApiController {
         userService.registerUser(registerRequest.getUsername(), registerRequest.getPassword());
         return ResponseEntity.ok().build();
     }
-
 }
