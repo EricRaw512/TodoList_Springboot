@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class Checklist {
     
     private int id;
-    private String itemName;
+    private String name;
     
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
