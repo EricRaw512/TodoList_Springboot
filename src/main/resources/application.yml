@@ -1,0 +1,11 @@
+spring:
+    application:
+        name: To Do List
+    datasource:
+        url: jdbcL:mysql://localhost:3306/todo_list
+        username: admin
+        password: root
+        driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+        hibernate:
+            ddl-auto: update

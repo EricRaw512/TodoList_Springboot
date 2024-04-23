@@ -26,6 +26,7 @@ public class UserService implements UserDetailsService{
             return user;
         }
         
+        return null;
         //throw new UnauthorizedException("Invalid Username or password");
     }
 
