@@ -27,11 +27,9 @@ public class UserService implements UserDetailsService{
         }
         
         return null;
-        //throw new UnauthorizedException("Invalid Username or password");
     }
 
     public void registerUser(String username, String password) {
-        //throw badRequestException if user is already exist
         User newUser = new User();
         newUser.setUsername(username);
         String encodedPassword = passwordEncoder.encode(password);

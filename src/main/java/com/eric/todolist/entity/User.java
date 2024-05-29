@@ -31,7 +31,7 @@ public class User implements UserDetails{
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Checklist> checklists;
+    private List<Checklist> checklists; 
     
     private Collection<? extends GrantedAuthority> role;
 

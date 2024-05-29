@@ -6,13 +6,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.eric.todolist.dto.JwtResponse;
-import com.eric.todolist.dto.UserLoginRequest;
-import com.eric.todolist.dto.UserRegistrationRequest;
+import com.eric.todolist.dto.JwtResponseDto;
+import com.eric.todolist.dto.LoginDto;
+import com.eric.todolist.dto.RegisterDto;
 import com.eric.todolist.entity.User;
 import com.eric.todolist.service.JwtService;
 import com.eric.todolist.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -24,25 +25,23 @@ public class AuthenticationController {
     private final JwtService jwtService;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody UserLoginRequest loginRequest) {
+    public ResponseEntity<JwtResponseDto> login(@Valid @RequestBody LoginDto loginRequest) {
         User user = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
-        //Sementara Kalau Bisa buat UnauthorizedException
         if (user == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(new JwtResponseDto("Username or password is wrong", null));
         }
         
         String jwt = jwtService.generateToken(user);
-        return ResponseEntity.ok(new JwtResponse(jwt));
+        return ResponseEntity.ok(new JwtResponseDto("Login Successfull", jwt));
     }
 
     @PostMapping("register")
-    public ResponseEntity<Void> register(@RequestBody UserRegistrationRequest registerRequest) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterDto registerRequest) {
         if (userService.loadUserByUsername(registerRequest.getUsername()) != null) {
-            //Sementara, Kalau bisa Buat return Response bahwa User uda ada
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("Username Already Exist");
         }
 
         userService.registerUser(registerRequest.getUsername(), registerRequest.getPassword());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("User Created");
     }
 }

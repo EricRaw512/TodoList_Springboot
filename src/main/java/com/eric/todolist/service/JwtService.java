@@ -18,7 +18,6 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
     
-    //Store it in environment not here! ok
     private String secretKey = "68745C17B3A56AD2723096E2BD6D7BE42603CB1991EBF577DDE3B6C86D781DBE";
     private long expiration= 6_000_000;
 

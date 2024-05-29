@@ -2,15 +2,17 @@ package com.eric.todolist.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.eric.todolist.dao.ChecklistItemRepository;
 import com.eric.todolist.dao.ChecklistRepository;
-import com.eric.todolist.dao.UserRepository;
+import com.eric.todolist.dto.ChecklistItemDTO;
 import com.eric.todolist.entity.Checklist;
 import com.eric.todolist.entity.ChecklistItem;
 import com.eric.todolist.entity.User;
+import com.eric.todolist.exception.ChecklistException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,79 +20,88 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChecklistItemService {
     
-    private final UserRepository userRepository;
     private final ChecklistRepository checklistRepository;
     private final ChecklistItemRepository checklistItemRepository;
 
-    public List<ChecklistItem> getAllCheckListItems(int checklistId, String username) {
-        if (!checkUserAndChecklistAuth(username, checklistId)) {
-            return null;
-        }
-
-        return checklistItemRepository.findAllByChecklistId(checklistId);
+    public List<ChecklistItemDTO> getAllCheckListItems(int checklistId) {
+        return checklistItemRepository.findAllByChecklistId(checklistId).stream()
+                .map(checklistItem -> convertToDto(checklistItem))
+                .collect(Collectors.toList());
     }
 
-    public ChecklistItem createChecklistItem(int checklistId, String checklistItemName, String username) {
-        User user = userRepository.findByUsername(username).orElse(null);
+    public ChecklistItemDTO createChecklistItem(int checklistId, String checklistItemName, User user) {
         Optional<Checklist> checklistOptional = checklistRepository.findById(checklistId);
         if (!checkUserAndChecklistAuth(user, checklistOptional)) {
-            return null;
+            throw new ChecklistException("Checklist doesn't match with the user");
         }
 
         ChecklistItem checklistItem = new ChecklistItem();
         checklistItem.setItemName(checklistItemName);
         checklistItem.setCompleted(false);
         checklistItem.setChecklist(checklistOptional.get());
-        return checklistItemRepository.save(checklistItem);
+        checklistItemRepository.save(checklistItem);
+        return convertToDto(checklistItem);
     }
 
-    public ChecklistItem getCheckListItem(int checklistId, int checklistItemId, String username) {
-        if (!checkUserAndChecklistAuth(username, checklistId)) {
-            return null;
+    public ChecklistItemDTO FindChecklist(int checklistId, int checklistItemId, User user) {
+        try {
+            ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, user);
+            return convertToDto(checklistItem);
+        } catch (Exception e) {
+            throw e;
         }
-    
-        return checklistItemRepository.findById(checklistItemId).orElse(null);
     }
 
-    public ChecklistItem updateCheckListItemStatus(int checklistId, int checklistItemId, String username) {
-        ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, username);
-        if (checklistItem == null) {
-            return null;
+    public ChecklistItem getCheckListItem(int checklistId, int checklistItemId, User user) {
+        Optional<Checklist> checklistOptional = checklistRepository.findById(checklistId);
+        if (!checkUserAndChecklistAuth(user, checklistOptional)) {
+            throw new ChecklistException("Checklist doesn't match with the user");
+        }
+        
+        Optional<ChecklistItem> checklistItem= checklistItemRepository.findById(checklistItemId);
+        if (!checklistItem.isPresent()) {
+            throw new ChecklistException("Checklist item id " + checklistItemId + " not found");
         }
 
-        checklistItem.setCompleted(!checklistItem.isCompleted());
-        return checklistItemRepository.save(checklistItem);
+        return checklistItem.get();
     }
 
-    public boolean deleteCheckListItem(int checklistId, int checklistItemId, String username) {
-        ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, username);
-        if (checklistItem == null) {
-            return false;
+    public ChecklistItemDTO updateCheckListItemStatus(int checklistId, int checklistItemId, User user) {
+        try {
+            ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, user);
+            checklistItem.setCompleted(!checklistItem.isCompleted());
+            checklistItemRepository.save(checklistItem);
+            return convertToDto(checklistItem);
+        } catch (Exception e) {
+            throw e;
         }
-
-        checklistItemRepository.deleteById(checklistItemId);
-        return checklistItemRepository.findById(checklistItemId).isEmpty();
     }
 
-    public ChecklistItem updateCheckListItem(int checklistId, int checklistItemId, String newItemName, String username) {
-        ChecklistItem currentChecklistItem = getCheckListItem(checklistId, checklistItemId, username);
-        if (currentChecklistItem == null) {
-            return null;
+    public void deleteCheckListItem(int checklistId, int checklistItemId, User user) {
+        try {
+            ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, user);
+            checklistItemRepository.deleteById(checklistItem.getId());
+        } catch (Exception e) {
+            throw e;
         }
+    }
 
-        currentChecklistItem.setItemName(newItemName);
-        return checklistItemRepository.save(currentChecklistItem);
+    public ChecklistItemDTO updateCheckListItem(int checklistId, int checklistItemId, String newItemName, User user) {
+        try {
+            ChecklistItem currentChecklistItem = getCheckListItem(checklistId, checklistItemId, user);
+            currentChecklistItem.setItemName(newItemName);
+            checklistItemRepository.save(currentChecklistItem);
+            return convertToDto(currentChecklistItem);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
 
     private boolean checkUserAndChecklistAuth(User user, Optional<Checklist> checklistOptional) {
-        if (user == null) {
-            return false;
-        }
-
         if (checklistOptional.isPresent()) {
             Checklist checklist = checklistOptional.get();
-            if (checklist.getUser().equals(user)) {
+            if (checklist.getUser().getUsername().equals(user.getUsername())) {
                 return true;
             }
         }
@@ -98,20 +109,7 @@ public class ChecklistItemService {
         return false;
     }
 
-    private boolean checkUserAndChecklistAuth(String username, int checklistId) {
-        User user = userRepository.findByUsername(username).orElse(null);
-        if (user == null) {
-            return false;
-        }
-
-        Optional<Checklist> checklistOptional = checklistRepository.findById(checklistId);
-        if (checklistOptional.isPresent()) {
-            Checklist checklist = checklistOptional.get();
-            if (checklist.getUser().equals(user)) {
-                return true;
-            }
-        } 
-
-        return false;
+    private ChecklistItemDTO convertToDto(ChecklistItem checklistItems) {
+        return new ChecklistItemDTO(checklistItems.getId(), checklistItems.isCompleted(), checklistItems.getItemName());
     }
 }

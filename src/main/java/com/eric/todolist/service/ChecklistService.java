@@ -2,13 +2,15 @@ package com.eric.todolist.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.eric.todolist.dao.ChecklistRepository;
-import com.eric.todolist.dao.UserRepository;
+import com.eric.todolist.dto.CheckListDTO;
 import com.eric.todolist.entity.Checklist;
 import com.eric.todolist.entity.User;
+import com.eric.todolist.exception.ChecklistException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,51 +18,36 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChecklistService {
     
-    private final UserRepository userRepository;
     private final ChecklistRepository checklistRepository;
 
-    public List<Checklist> getAllChecklistsByUsername(String username) {
-        User user = userRepository.findByUsername(username).orElse(null);
-        if (user == null) {
-            return null;
-        }
-
-        return checklistRepository.findAllByUserId(user.getId());
+    public List<CheckListDTO> getAllChecklistsByUsername(User user) {
+        return convertToDto(checklistRepository.findAllByUserId(user.getId()));
     }
 
-    public Checklist createChecklist(String checklistName, String username) {
-        User user = userRepository.findByUsername(username).orElse(null);
-        if (user == null) {
-            return null;
-        }
-        
+    public void createChecklist(String checklistName, User user) {
         Checklist checklist = new Checklist();
         checklist.setName(checklistName);
         checklist.setUser(user);
-        return checklistRepository.save(checklist);
+        checklistRepository.save(checklist);
     }
 
-    public void deleteChecklist(int checklistId, String username) {
-        User user = userRepository.findByUsername(username).orElse(null);
-        if (user == null) {
-            return;
-            //throw new NameNotFoundException();
+    public void deleteChecklist(int checklistId, User user) {
+        Optional<Checklist> checklistOptional = checklistRepository.findById(checklistId);
+        if (!checklistOptional.isPresent()) {
+            throw new ChecklistException("Checklist id " + checklistId + " not found");
+        }
+        
+        Checklist checklist = checklistOptional.get();
+        if (!checklist.getUser().getUsername().equals(user.getUsername())) {
+            throw new ChecklistException("User doesn't match with Checklist user");
         }
 
-        Optional<Checklist> checklistOptional = checklistRepository.findById(checklistId);
-        if (checklistOptional.isPresent()) {
-            Checklist checklist = checklistOptional.get();
-            if (checklist.getUser().equals(user)) {
-                checklistRepository.delete(checklist);
-            } else {
-                return;
-                //throw new UnauthorizedAccessException();
-            }
-        } else {
-            return;
-            //throw new NotFoundException();
-        }
+        checklistRepository.delete(checklist);
     }
     
-
+    private List<CheckListDTO> convertToDto(List<Checklist> allByUserId) {
+        return allByUserId.stream()
+            .map(checklist -> new CheckListDTO(checklist.getId(), checklist.getName()))
+            .collect(Collectors.toList());
+    }
 }

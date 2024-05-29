@@ -3,20 +3,21 @@ package com.eric.todolist.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.todolist.dto.CheckListDTO;
-import com.eric.todolist.entity.Checklist;
+import com.eric.todolist.entity.User;
+import com.eric.todolist.exception.ChecklistException;
 import com.eric.todolist.service.ChecklistService;
-import com.eric.todolist.service.JwtService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -25,42 +26,27 @@ import lombok.RequiredArgsConstructor;
 public class CheckListController {
     
     private final ChecklistService checklistService;
-    private final JwtService jwtService;
 
     @GetMapping
-    public ResponseEntity<List<Checklist>> getAllCheckLists(@RequestHeader("Authorization") String authorization) {
-        String username = jwtService.extractUsername(authorization.substring(7));
-        if (username == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        List<Checklist> checklists = checklistService.getAllChecklistsByUsername(username);
-        if (checklists == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
+    public ResponseEntity<List<CheckListDTO>> getAllCheckLists(@AuthenticationPrincipal User user) {
+        List<CheckListDTO> checklists = checklistService.getAllChecklistsByUsername(user);
         return ResponseEntity.ok(checklists);
     }
 
     @PostMapping
-    public ResponseEntity<Checklist> createChecklist(@RequestHeader("Authorization") String authorization, @RequestBody CheckListDTO checklistDTO) {
-        String username = jwtService.extractUsername(authorization.substring(7));
-        if (username == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Checklist newChecklist = checklistService.createChecklist(checklistDTO.getName(), username);
-        return ResponseEntity.ok(newChecklist);
+    public ResponseEntity<CheckListDTO> createChecklist(@Valid @RequestBody CheckListDTO checklistDTO, @AuthenticationPrincipal User user) {
+        checklistService.createChecklist(checklistDTO.getName(), user);
+        return ResponseEntity.ok(checklistDTO);
     }
 
     @DeleteMapping("/{checklistId}")
-    public ResponseEntity<Void> deleteChecklist(@RequestHeader("Authorization") String authorization, @PathVariable int checklistId) {
-        String username = jwtService.extractUsername(authorization.substring(7));
-        if (username == null) {
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<Void> deleteChecklist(@PathVariable int checklistId, @AuthenticationPrincipal User user) {
+        try {
+            checklistService.deleteChecklist(checklistId, user);
+        } catch (ChecklistException e ) {
+            throw e;
         }
 
-        checklistService.deleteChecklist(checklistId, username);
         return ResponseEntity.ok().build();
     }
 }
