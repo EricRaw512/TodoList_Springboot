@@ -31,8 +31,10 @@ public class ChecklistItemService {
 
     public ChecklistItemDTO createChecklistItem(int checklistId, String checklistItemName, UserDetail user) {
         Optional<Checklist> checklistOptional = checklistRepository.findById(checklistId);
-        if (!checkUserAndChecklistAuth(user, checklistOptional)) {
-            throw new ChecklistException("Checklist doesn't match with the user");
+        try {
+            checkUserAndChecklistAuth(user, checklistOptional, checklistId);
+        } catch (ChecklistException e) {
+            throw e;
         }
 
         ChecklistItem checklistItem = new ChecklistItem();
@@ -54,8 +56,10 @@ public class ChecklistItemService {
 
     public ChecklistItem getCheckListItem(int checklistId, int checklistItemId, UserDetail user) {
         Optional<Checklist> checklistOptional = checklistRepository.findById(checklistId);
-        if (!checkUserAndChecklistAuth(user, checklistOptional)) {
-            throw new ChecklistException("Checklist doesn't match with the user");
+        try {
+            checkUserAndChecklistAuth(user, checklistOptional, checklistId);
+        } catch (ChecklistException e) {
+            throw e;
         }
         
         Optional<ChecklistItem> checklistItem= checklistItemRepository.findById(checklistItemId);
@@ -98,15 +102,15 @@ public class ChecklistItemService {
     }
 
 
-    private boolean checkUserAndChecklistAuth(UserDetail user, Optional<Checklist> checklistOptional) {
-        if (checklistOptional.isPresent()) {
-            Checklist checklist = checklistOptional.get();
-            if (checklist.getUser().getUsername().equals(user.getUsername())) {
-                return true;
-            }
+    private void checkUserAndChecklistAuth(UserDetail user, Optional<Checklist> checklistOptional, int checklistId) {
+        if (!checklistOptional.isPresent()) {
+            throw new ChecklistException("Cannot find the checklist with id " + checklistId);
         }
 
-        return false;
+        Checklist checklist = checklistOptional.get();
+        if (!checklist.getUser().getUsername().equals(user.getUsername())) {
+            throw new ChecklistException("Checklist doesn't match with the user");
+        }
     }
 
     private ChecklistItemDTO convertToDto(ChecklistItem checklistItems) {
