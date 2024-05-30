@@ -2,6 +2,7 @@ package com.eric.todolist.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,7 +12,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.eric.todolist.exception.ChecklistException;
 import com.eric.todolist.exception.UserException;
-import com.eric.todolist.exception.UserorPasswordException;
+import com.eric.todolist.exception.UsernameOrPasswordException;
 
 @RestControllerAdvice
 public class RestControllerException {
@@ -45,8 +46,8 @@ public class RestControllerException {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(UserorPasswordException.class)  
-    public ResponseEntity<String> handleUserException(UserorPasswordException ex) {
+    @ExceptionHandler(UsernameOrPasswordException.class)  
+    public ResponseEntity<String> handleUserException(UsernameOrPasswordException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 
@@ -60,4 +61,8 @@ public class RestControllerException {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<String> handleUsernameNotFoundExcetpion(UsernameNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
 }   
