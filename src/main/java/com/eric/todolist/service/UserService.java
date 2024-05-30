@@ -13,6 +13,7 @@ import com.eric.todolist.dto.UserDto;
 import com.eric.todolist.entity.Role;
 import com.eric.todolist.entity.User;
 import com.eric.todolist.exception.UserException;
+import com.eric.todolist.exception.UserorPasswordException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,7 +31,7 @@ public class UserService {
     public User authenticateUser(String username, String password) {
         Optional<User> user = loadUserByUsername(username);
         if (!user.isPresent() || !passwordEncoder.matches(password, user.get().getPassword())) {
-            throw new UserException("Username or password is wrong");
+            throw new UserorPasswordException("Username or password is wrong");
         }
         
         return user.get();

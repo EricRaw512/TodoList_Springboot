@@ -11,6 +11,7 @@ import com.eric.todolist.dto.LoginDto;
 import com.eric.todolist.dto.RegisterDto;
 import com.eric.todolist.entity.User;
 import com.eric.todolist.exception.UserException;
+import com.eric.todolist.exception.UserorPasswordException;
 import com.eric.todolist.service.JwtService;
 import com.eric.todolist.service.UserService;
 
@@ -31,7 +32,7 @@ public class AuthenticationController {
             User user = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());        
             String jwt = jwtService.generateToken(user);
             return ResponseEntity.ok(new JwtResponseDto(jwt));
-        } catch (UserException e) {
+        } catch (UserorPasswordException e) {
             throw e;
         }
     }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.eric.todolist.exception.ChecklistException;
 import com.eric.todolist.exception.UserException;
+import com.eric.todolist.exception.UserorPasswordException;
 
 @RestControllerAdvice
 public class RestControllerException {
@@ -29,7 +30,7 @@ public class RestControllerException {
             strBuilder.append(String.format("%s: %s /", fieldName, message));
         });
 
-        return new ResponseEntity<>(strBuilder.toString(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(strBuilder.toString(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(ChecklistException.class)
@@ -37,8 +38,13 @@ public class RestControllerException {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(UserException.class)
+    @ExceptionHandler(UserException.class)  
     public ResponseEntity<String> handleUserException(UserException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
-}
+
+    @ExceptionHandler(UserorPasswordException.class)  
+    public ResponseEntity<String> handleUserException(UserorPasswordException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
+}   
