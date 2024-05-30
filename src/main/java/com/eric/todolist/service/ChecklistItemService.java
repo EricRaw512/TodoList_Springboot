@@ -114,6 +114,6 @@ public class ChecklistItemService {
     }
 
     private ChecklistItemDTO convertToDto(ChecklistItem checklistItems) {
-        return new ChecklistItemDTO(checklistItems.getId(), checklistItems.isCompleted(), checklistItems.getItemName());
+        return new ChecklistItemDTO(checklistItems.getId(), checklistItems.getItemName(), checklistItems.isCompleted());
     }
 }

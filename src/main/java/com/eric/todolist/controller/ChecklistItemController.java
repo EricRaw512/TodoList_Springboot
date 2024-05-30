@@ -1,7 +1,14 @@
 package com.eric.todolist.controller;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,11 +19,17 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.eric.todolist.dto.ChecklistItemDTO;
 import com.eric.todolist.exception.ChecklistException;
 import com.eric.todolist.security.UserDetail;
+import com.eric.todolist.service.ChecklistItemReportService;
 import com.eric.todolist.service.ChecklistItemService;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 public class ChecklistItemController {
     
     private final ChecklistItemService checklistItemService;
+    private final ChecklistItemReportService checklistItemReportService;
     
     @GetMapping
     public ResponseEntity<List<ChecklistItemDTO>> getAllChecklistItems(@PathVariable int checklistId) {
@@ -80,5 +94,38 @@ public class ChecklistItemController {
         } catch (ChecklistException e) {
             throw e;
         }
+    }
+
+    @GetMapping("/export/csv")
+    public ResponseEntity<StreamingResponseBody> exportCSV(@PathVariable int checklistId) {
+        String filename = "ChecklistItem-list.csv";
+
+
+        StreamingResponseBody stream = outputStream -> {
+            List<ChecklistItemDTO> checklistItems = checklistItemService.getAllCheckListItems(checklistId);
+            try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+               new StatefulBeanToCsvBuilder<ChecklistItemDTO>(writer)
+                                .build().write(checklistItems);
+            } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+            } 
+        };
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType("test/csv; charset=UTF-8"))
+            .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s", filename))
+            .header(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, HttpHeaders.CONTENT_DISPOSITION)
+            .body(stream);
+    }
+
+    @GetMapping("/export/excel")
+    public ResponseEntity<byte[]> exportExcel(@PathVariable int checklistId) throws IOException {
+        String filename = "ChecklistItem-list.xls";
+        List<ChecklistItemDTO> checklistItems = checklistItemService.getAllCheckListItems(checklistId);
+        byte[] excelReport = checklistItemReportService.exportToExcel(checklistItems);
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s", filename))
+            .body(excelReport);
     }
 }

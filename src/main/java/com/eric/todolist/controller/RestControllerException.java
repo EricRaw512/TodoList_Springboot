@@ -2,6 +2,7 @@ package com.eric.todolist.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -13,6 +14,9 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import com.eric.todolist.exception.ChecklistException;
 import com.eric.todolist.exception.UserException;
 import com.eric.todolist.exception.UsernameOrPasswordException;
+
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.io.IOException;
 
 @RestControllerAdvice
 public class RestControllerException {
@@ -64,5 +68,20 @@ public class RestControllerException {
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<String> handleUsernameNotFoundExcetpion(UsernameNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<IOException> handleIOException(IOException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<AccessDeniedException> handleIOException(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ExpiredJwtException> handleIOException(ExpiredJwtException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex);
     }
 }   
