@@ -23,17 +23,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User loadUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElse(null);
+    public Optional<User> loadUserByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     public User authenticateUser(String username, String password) {
-        User user = loadUserByUsername(username);
-        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-            return user;
+        Optional<User> user = loadUserByUsername(username);
+        if (!user.isPresent() && !passwordEncoder.matches(password, user.get().getPassword())) {
+            throw new UserException("Username or password is wrong");
         }
         
-        return null;
+        return user.get();
     }
 
     public void registerUser(String username, String password) {

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.todolist.dto.ChecklistItemDTO;
+import com.eric.todolist.exception.ChecklistException;
 import com.eric.todolist.security.UserDetail;
 import com.eric.todolist.service.ChecklistItemService;
 
@@ -38,7 +39,7 @@ public class ChecklistItemController {
         try {
             ChecklistItemDTO newChecklistItem = checklistItemService.createChecklistItem(checklistId, checklistItemDTO.getItemName(), user);
             return ResponseEntity.ok(newChecklistItem);
-        } catch (Exception e) {
+        } catch (ChecklistException e) {
             throw e;
         }
     }
@@ -48,7 +49,7 @@ public class ChecklistItemController {
         try {
             ChecklistItemDTO checklistItem = checklistItemService.FindChecklist(checklistId, checklistItemId, user);
             return ResponseEntity.ok(checklistItem);
-        } catch (Exception e) {
+        } catch (ChecklistException e) {
             throw e;
         }
     }
@@ -64,7 +65,7 @@ public class ChecklistItemController {
         try {
             checklistItemService.deleteCheckListItem(checklistId, checklistItemId, user);
             return ResponseEntity.ok().build();
-        } catch (Exception e) {
+        } catch (ChecklistException e) {
             throw e;
         }
 
@@ -76,9 +77,8 @@ public class ChecklistItemController {
         try {
             ChecklistItemDTO updatedChecklistItem = checklistItemService.updateCheckListItem(checklistId, checklistItemId, checklistItemDTO.getItemName(), user);
             return ResponseEntity.ok(updatedChecklistItem);
-        } catch (Exception e) {
+        } catch (ChecklistException e) {
             throw e;
         }
-        
     }
 }

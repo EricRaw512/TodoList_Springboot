@@ -10,6 +10,7 @@ import com.eric.todolist.dto.JwtResponseDto;
 import com.eric.todolist.dto.LoginDto;
 import com.eric.todolist.dto.RegisterDto;
 import com.eric.todolist.entity.User;
+import com.eric.todolist.exception.UserException;
 import com.eric.todolist.service.JwtService;
 import com.eric.todolist.service.UserService;
 
@@ -26,19 +27,19 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponseDto> login(@Valid @RequestBody LoginDto loginRequest) {
-        User user = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
-        if (user == null) {
-            return ResponseEntity.badRequest().body(new JwtResponseDto("Username or password is wrong", null));
+        try {
+            User user = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());        
+            String jwt = jwtService.generateToken(user);
+            return ResponseEntity.ok(new JwtResponseDto(jwt));
+        } catch (UserException e) {
+            throw e;
         }
-        
-        String jwt = jwtService.generateToken(user);
-        return ResponseEntity.ok(new JwtResponseDto("Login Successfull", jwt));
     }
 
     @PostMapping("register")
     public ResponseEntity<String> register(@Valid @RequestBody RegisterDto registerRequest) {
-        if (userService.loadUserByUsername(registerRequest.getUsername()) != null) {
-            return ResponseEntity.badRequest().body("Username Already Exist");
+        if (userService.loadUserByUsername(registerRequest.getUsername()).isPresent()) {
+            throw new UserException("Username Already Exist");
         }
 
         userService.registerUser(registerRequest.getUsername(), registerRequest.getPassword());

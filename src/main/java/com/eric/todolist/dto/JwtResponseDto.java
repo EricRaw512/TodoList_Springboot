@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class JwtResponseDto {
     
-    private String status;
     private String token;
 
 }

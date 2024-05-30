@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.todolist.dto.UserDto;
+import com.eric.todolist.exception.UserException;
 import com.eric.todolist.service.UserService;
 
 import jakarta.validation.Valid;
@@ -34,7 +35,7 @@ public class UserController {
     public UserDto updateUserUsername(@PathVariable("userId") int userid, @Valid @RequestBody UserDto userDto) {
         try {
             return userService.updateUserUsername(userid, userDto);
-        } catch (Exception e) {
+        } catch (UserException e) {
             throw e;
         }
     }
