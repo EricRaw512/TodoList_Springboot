@@ -29,7 +29,7 @@ public class UserService {
 
     public User authenticateUser(String username, String password) {
         Optional<User> user = loadUserByUsername(username);
-        if (!user.isPresent() && !passwordEncoder.matches(password, user.get().getPassword())) {
+        if (!user.isPresent() || !passwordEncoder.matches(password, user.get().getPassword())) {
             throw new UserException("Username or password is wrong");
         }
         
