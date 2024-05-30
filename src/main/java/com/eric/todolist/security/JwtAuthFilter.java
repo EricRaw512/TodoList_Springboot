@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.eric.todolist.service.JwtService;
-import com.eric.todolist.service.UserService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class JwtAuthFilter extends OncePerRequestFilter{
 
     private final JwtService jwtService;
-    private final UserService userService;
+    private final UserDetailService userDetailService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -33,7 +32,7 @@ public class JwtAuthFilter extends OncePerRequestFilter{
             String token = authHeader.substring(7);
             String username = jwtService.extractUsername(token);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails user = userService.loadUserByUsername(username);
+                UserDetails user = userDetailService.loadUserByUsername(username);
                 if (user == null) {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     return;

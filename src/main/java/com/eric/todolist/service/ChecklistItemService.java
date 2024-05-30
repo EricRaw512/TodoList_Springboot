@@ -11,8 +11,8 @@ import com.eric.todolist.dao.ChecklistRepository;
 import com.eric.todolist.dto.ChecklistItemDTO;
 import com.eric.todolist.entity.Checklist;
 import com.eric.todolist.entity.ChecklistItem;
-import com.eric.todolist.entity.User;
 import com.eric.todolist.exception.ChecklistException;
+import com.eric.todolist.security.UserDetail;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,7 +29,7 @@ public class ChecklistItemService {
                 .collect(Collectors.toList());
     }
 
-    public ChecklistItemDTO createChecklistItem(int checklistId, String checklistItemName, User user) {
+    public ChecklistItemDTO createChecklistItem(int checklistId, String checklistItemName, UserDetail user) {
         Optional<Checklist> checklistOptional = checklistRepository.findById(checklistId);
         if (!checkUserAndChecklistAuth(user, checklistOptional)) {
             throw new ChecklistException("Checklist doesn't match with the user");
@@ -43,7 +43,7 @@ public class ChecklistItemService {
         return convertToDto(checklistItem);
     }
 
-    public ChecklistItemDTO FindChecklist(int checklistId, int checklistItemId, User user) {
+    public ChecklistItemDTO FindChecklist(int checklistId, int checklistItemId, UserDetail user) {
         try {
             ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, user);
             return convertToDto(checklistItem);
@@ -52,7 +52,7 @@ public class ChecklistItemService {
         }
     }
 
-    public ChecklistItem getCheckListItem(int checklistId, int checklistItemId, User user) {
+    public ChecklistItem getCheckListItem(int checklistId, int checklistItemId, UserDetail user) {
         Optional<Checklist> checklistOptional = checklistRepository.findById(checklistId);
         if (!checkUserAndChecklistAuth(user, checklistOptional)) {
             throw new ChecklistException("Checklist doesn't match with the user");
@@ -66,7 +66,7 @@ public class ChecklistItemService {
         return checklistItem.get();
     }
 
-    public ChecklistItemDTO updateCheckListItemStatus(int checklistId, int checklistItemId, User user) {
+    public ChecklistItemDTO updateCheckListItemStatus(int checklistId, int checklistItemId, UserDetail user) {
         try {
             ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, user);
             checklistItem.setCompleted(!checklistItem.isCompleted());
@@ -77,7 +77,7 @@ public class ChecklistItemService {
         }
     }
 
-    public void deleteCheckListItem(int checklistId, int checklistItemId, User user) {
+    public void deleteCheckListItem(int checklistId, int checklistItemId, UserDetail user) {
         try {
             ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, user);
             checklistItemRepository.deleteById(checklistItem.getId());
@@ -86,7 +86,7 @@ public class ChecklistItemService {
         }
     }
 
-    public ChecklistItemDTO updateCheckListItem(int checklistId, int checklistItemId, String newItemName, User user) {
+    public ChecklistItemDTO updateCheckListItem(int checklistId, int checklistItemId, String newItemName, UserDetail user) {
         try {
             ChecklistItem currentChecklistItem = getCheckListItem(checklistId, checklistItemId, user);
             currentChecklistItem.setItemName(newItemName);
@@ -98,7 +98,7 @@ public class ChecklistItemService {
     }
 
 
-    private boolean checkUserAndChecklistAuth(User user, Optional<Checklist> checklistOptional) {
+    private boolean checkUserAndChecklistAuth(UserDetail user, Optional<Checklist> checklistOptional) {
         if (checklistOptional.isPresent()) {
             Checklist checklist = checklistOptional.get();
             if (checklist.getUser().getUsername().equals(user.getUsername())) {

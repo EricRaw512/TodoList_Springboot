@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.eric.todolist.exception.ChecklistException;
+import com.eric.todolist.exception.UserException;
 
 @RestControllerAdvice
 public class RestControllerException {
@@ -33,6 +34,11 @@ public class RestControllerException {
 
     @ExceptionHandler(ChecklistException.class)
     public ResponseEntity<String> handleChecklistException(ChecklistException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<String> handleUserException(UserException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

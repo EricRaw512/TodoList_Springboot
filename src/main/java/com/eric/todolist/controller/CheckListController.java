@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.todolist.dto.CheckListDTO;
-import com.eric.todolist.entity.User;
 import com.eric.todolist.exception.ChecklistException;
+import com.eric.todolist.security.UserDetail;
 import com.eric.todolist.service.ChecklistService;
 
 import jakarta.validation.Valid;
@@ -28,19 +28,19 @@ public class CheckListController {
     private final ChecklistService checklistService;
 
     @GetMapping
-    public ResponseEntity<List<CheckListDTO>> getAllCheckLists(@AuthenticationPrincipal User user) {
+    public ResponseEntity<List<CheckListDTO>> getAllCheckLists(@AuthenticationPrincipal UserDetail user) {
         List<CheckListDTO> checklists = checklistService.getAllChecklistsByUsername(user);
         return ResponseEntity.ok(checklists);
     }
 
     @PostMapping
-    public ResponseEntity<CheckListDTO> createChecklist(@Valid @RequestBody CheckListDTO checklistDTO, @AuthenticationPrincipal User user) {
+    public ResponseEntity<CheckListDTO> createChecklist(@Valid @RequestBody CheckListDTO checklistDTO, @AuthenticationPrincipal UserDetail user) {
         checklistService.createChecklist(checklistDTO.getName(), user);
         return ResponseEntity.ok(checklistDTO);
     }
 
     @DeleteMapping("/{checklistId}")
-    public ResponseEntity<Void> deleteChecklist(@PathVariable int checklistId, @AuthenticationPrincipal User user) {
+    public ResponseEntity<Void> deleteChecklist(@PathVariable int checklistId, @AuthenticationPrincipal UserDetail user) {
         try {
             checklistService.deleteChecklist(checklistId, user);
         } catch (ChecklistException e ) {

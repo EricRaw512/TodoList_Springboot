@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.todolist.dto.ChecklistItemDTO;
-import com.eric.todolist.entity.User;
+import com.eric.todolist.security.UserDetail;
 import com.eric.todolist.service.ChecklistItemService;
 
 import jakarta.validation.Valid;
@@ -34,7 +34,7 @@ public class ChecklistItemController {
     }
 
     @PostMapping
-    public ResponseEntity<ChecklistItemDTO> createChecklistItem(@PathVariable int checklistId, @Valid @RequestBody ChecklistItemDTO checklistItemDTO, @AuthenticationPrincipal User user) {
+    public ResponseEntity<ChecklistItemDTO> createChecklistItem(@PathVariable int checklistId, @Valid @RequestBody ChecklistItemDTO checklistItemDTO, @AuthenticationPrincipal UserDetail user) {
         try {
             ChecklistItemDTO newChecklistItem = checklistItemService.createChecklistItem(checklistId, checklistItemDTO.getItemName(), user);
             return ResponseEntity.ok(newChecklistItem);
@@ -44,7 +44,7 @@ public class ChecklistItemController {
     }
 
     @GetMapping("/{checklistItemId}")
-    public ResponseEntity<ChecklistItemDTO> getChecklistItem(@PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId, @AuthenticationPrincipal User user) {
+    public ResponseEntity<ChecklistItemDTO> getChecklistItem(@PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId, @AuthenticationPrincipal UserDetail user) {
         try {
             ChecklistItemDTO checklistItem = checklistItemService.FindChecklist(checklistId, checklistItemId, user);
             return ResponseEntity.ok(checklistItem);
@@ -54,13 +54,13 @@ public class ChecklistItemController {
     }
 
     @PutMapping("/{checklistItemId}")
-    public ResponseEntity<ChecklistItemDTO> updateChecklistItemStatus(@PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId, @AuthenticationPrincipal User user) {
+    public ResponseEntity<ChecklistItemDTO> updateChecklistItemStatus(@PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId, @AuthenticationPrincipal UserDetail user) {
         ChecklistItemDTO checklistItem = checklistItemService.updateCheckListItemStatus(checklistId, checklistItemId, user);
         return ResponseEntity.ok(checklistItem);
     }
 
     @DeleteMapping("/{checklistItemId}")
-    public ResponseEntity<Void> deleteChecklistItem(@PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId, @AuthenticationPrincipal User user) {
+    public ResponseEntity<Void> deleteChecklistItem(@PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId, @AuthenticationPrincipal UserDetail user) {
         try {
             checklistItemService.deleteCheckListItem(checklistId, checklistItemId, user);
             return ResponseEntity.ok().build();
@@ -72,7 +72,7 @@ public class ChecklistItemController {
 
     @PutMapping("/rename/{checklistItemId}")
     public ResponseEntity<ChecklistItemDTO> renameChecklistItem(@PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId, 
-                            @Valid @RequestBody ChecklistItemDTO checklistItemDTO, @AuthenticationPrincipal User user) {
+                            @Valid @RequestBody ChecklistItemDTO checklistItemDTO, @AuthenticationPrincipal UserDetail user) {
         try {
             ChecklistItemDTO updatedChecklistItem = checklistItemService.updateCheckListItem(checklistId, checklistItemId, checklistItemDTO.getItemName(), user);
             return ResponseEntity.ok(updatedChecklistItem);

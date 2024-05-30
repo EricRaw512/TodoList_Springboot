@@ -12,8 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.eric.todolist.service.UserService;
-
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -23,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
     
     private final JwtAuthFilter jwtAuthFilter;
-    private final UserService userService;
+    private final UserDetailService userDetailService;
     private final PasswordEncoder passwordEncoder;
 
     private static final String[] WHITE_LIST_URL = {
@@ -37,7 +35,8 @@ public class SecurityConfig {
             .csrf(crsf -> crsf.disable())
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(WHITE_LIST_URL).permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers("/api/user", "/api/user/**").hasAnyRole("ADMIN")
+                .anyRequest().authenticated()   
             )
             .sessionManagement(manag -> manag.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -48,7 +47,7 @@ public class SecurityConfig {
     @Bean
     AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userService);
+        provider.setUserDetailsService(userDetailService);
         provider.setPasswordEncoder(passwordEncoder);
         return provider;
     }
