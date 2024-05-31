@@ -100,7 +100,6 @@ public class ChecklistItemController {
     public ResponseEntity<StreamingResponseBody> exportCSV(@PathVariable int checklistId) {
         String filename = "ChecklistItem-list.csv";
 
-
         StreamingResponseBody stream = outputStream -> {
             List<ChecklistItemDTO> checklistItems = checklistItemService.getAllCheckListItems(checklistId);
             try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {

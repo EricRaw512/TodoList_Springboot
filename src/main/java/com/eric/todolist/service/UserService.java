@@ -2,9 +2,7 @@ package com.eric.todolist.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-// import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,8 +46,8 @@ public class UserService {
 
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
-            .map(user -> ConverToDto(user))
-            .collect(Collectors.toList());
+            .map(this::ConverToDto)
+            .toList();
     }
 
     // @PreAuthorize("hasRole('ROLE_ADMIN')")

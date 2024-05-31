@@ -18,7 +18,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserDetail implements UserDetails{
 
-    private int id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1502039293417485174L;
+	
+	private int id;
     private String userName;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
@@ -69,7 +74,6 @@ public class UserDetail implements UserDetails{
     }
 
     public boolean hasRole(String role) {
-        System.out.println(role + " " + authorities);
         return authorities.stream()
             .anyMatch(authority -> authority.getAuthority().equals(role));
     }
