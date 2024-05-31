@@ -26,12 +26,10 @@ import com.eric.todolist.exception.ChecklistException;
 import com.eric.todolist.security.UserDetail;
 import com.eric.todolist.service.ChecklistReportService;
 import com.eric.todolist.service.ChecklistService;
-import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

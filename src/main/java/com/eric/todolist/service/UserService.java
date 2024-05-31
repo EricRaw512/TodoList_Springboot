@@ -46,7 +46,7 @@ public class UserService {
 
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
-            .map(this::ConverToDto)
+            .map(this::converToDto)
             .toList();
     }
 
@@ -62,7 +62,7 @@ public class UserService {
         return userDto;
     }
 
-    private UserDto ConverToDto(User user) {
+    private UserDto converToDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
         userDto.setRole(user.getRole());

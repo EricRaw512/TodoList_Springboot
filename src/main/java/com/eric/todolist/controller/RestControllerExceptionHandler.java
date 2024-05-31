@@ -19,13 +19,13 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.io.IOException;
 
 @RestControllerAdvice
-public class RestControllerException {
+public class RestControllerExceptionHandler{
     
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleMethodNotValieException(MethodArgumentNotValidException e) {
         StringBuilder strBuilder = new StringBuilder();
 
-        e.getBindingResult().getAllErrors().forEach((error) -> {
+        e.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName;
             try {
                 fieldName = ((FieldError) error).getField();

@@ -82,7 +82,6 @@ public class ChecklistItemController {
         } catch (ChecklistException e) {
             throw e;
         }
-
     }
 
     @PutMapping("/rename/{checklistItemId}")
