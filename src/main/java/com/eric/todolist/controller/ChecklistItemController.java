@@ -111,7 +111,7 @@ public class ChecklistItemController {
         };
 
         return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType("test/csv; charset=UTF-8"))
+            .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
             .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s", filename))
             .header(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, HttpHeaders.CONTENT_DISPOSITION)
             .body(stream);

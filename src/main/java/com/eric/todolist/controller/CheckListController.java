@@ -26,10 +26,12 @@ import com.eric.todolist.exception.ChecklistException;
 import com.eric.todolist.security.UserDetail;
 import com.eric.todolist.service.ChecklistReportService;
 import com.eric.todolist.service.ChecklistService;
+import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -63,7 +65,8 @@ public class CheckListController {
 
         return ResponseEntity.ok().build();
     }
-
+    
+    //Export Large CSV File
     @GetMapping("/export/csv")
     public ResponseEntity<StreamingResponseBody> exportCSV(@AuthenticationPrincipal UserDetail user) {
         String filename = "Checklist-list.csv";
@@ -78,11 +81,23 @@ public class CheckListController {
         };
 
         return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType("test/csv; charset=UTF-8"))
+            .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
             .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s", filename))
             .header(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, HttpHeaders.CONTENT_DISPOSITION)
             .body(stream);
     }
+    
+// Export Small CSV File
+//    @GetMapping("/export/csv")
+//    public void exportCsv(HttpServletResponse response, @AuthenticationPrincipal UserDetail user) throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+//    	String filename = "Checklist-list.csv";
+//    	response.setContentType("text/csv");
+//    	response.setHeader(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s", filename));
+//    	List<CheckListDTO> checkListDTOs = checklistService.getAllChecklistsByUsername(user);
+//    	StatefulBeanToCsv<CheckListDTO> beanToCsv = new StatefulBeanToCsvBuilder<CheckListDTO>(response.getWriter()).build();
+//    	beanToCsv.write(checkListDTOs);
+//    	response.getWriter().close();
+//    }
 
     @GetMapping("/export/excel")
     public ResponseEntity<byte[]> exportExcel(@AuthenticationPrincipal UserDetail user) throws IOException {
