@@ -12,6 +12,7 @@ import com.eric.todolist.entity.Role;
 import com.eric.todolist.entity.User;
 import com.eric.todolist.exception.UserException;
 import com.eric.todolist.exception.UsernameOrPasswordException;
+import com.eric.todolist.security.UserDetail;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +42,9 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(password);
         newUser.setPassword(encodedPassword);
         newUser.setRole(Role.ROLE_USER);
+        newUser.setAccountNonExpired(true);
+        newUser.setAccountNonLocked(true);
+        newUser.setEnabled(true);
         userRepository.save(newUser);
     }
 
@@ -50,23 +54,39 @@ public class UserService {
             .toList();
     }
 
-    // @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public UserDto updateUserUsername(int userId, UserDto userDto) {
+    public UserDto updateUserPassword(int userId, UserDto userDto, UserDetail currentUser) {
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent()) {
             throw new UserException("Cannot Find User with id" + userId);
         }
-
-        user.get().setUsername(userDto.getUsername());
+        
+        if (!passwordEncoder.matches(userDto.getOldPassword(), user.get().getPassword()) && !currentUser.hasRole("ROLE_ADMIN")) {
+        	throw new UsernameOrPasswordException("Old password is wrong");
+        }
+        
+        user.get().setPassword(passwordEncoder.encode(userDto.getPassword()));
         userRepository.save(user.get());
         return userDto;
     }
+    
+	public void updateUserStatus(int userId) {
+		Optional<User> user = userRepository.findById(userId);
+        if (!user.isPresent()) {
+            throw new UserException("Cannot Find User with id" + userId);
+        }
+        
+        user.get().setEnabled(!user.get().isEnabled());
+        userRepository.save(user.get());
+	}
 
     private UserDto converToDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
         userDto.setRole(user.getRole());
         userDto.setUsername(user.getUsername());
+        userDto.setAccountNonExpired(user.isAccountNonExpired());
+        userDto.setAccountNonLocked(user.isAccountNonLocked());
+        userDto.setEnabled(user.isEnabled());
         return userDto;
     }
 }

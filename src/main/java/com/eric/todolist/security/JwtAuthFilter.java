@@ -1,7 +1,5 @@
 package com.eric.todolist.security;
 
-import java.io.IOException;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +12,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExc
 import com.eric.todolist.service.JwtService;
 
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +26,7 @@ public class JwtAuthFilter extends OncePerRequestFilter{
     private final ExceptionHandlerExceptionResolver resolver;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
     	try {
     		String authHeader = request.getHeader("Authorization");
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -40,7 +36,7 @@ public class JwtAuthFilter extends OncePerRequestFilter{
                     UserDetails user = userDetailService.loadUserByUsername(username);
                     if (user == null) {
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        return;
+                        return;	
                     }
 
                     if (jwtService.validateToken(token, user)) {
@@ -50,6 +46,7 @@ public class JwtAuthFilter extends OncePerRequestFilter{
                         this.repository.saveContext(SecurityContextHolder.getContext(), request, response);
                     }
                 }
+    
             }
             
             filterChain.doFilter(request, response);    

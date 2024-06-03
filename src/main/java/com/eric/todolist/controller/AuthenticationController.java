@@ -1,21 +1,22 @@
 package com.eric.todolist.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.todolist.dto.JwtResponseDto;
-import com.eric.todolist.dto.LoginDto;
-import com.eric.todolist.dto.RegisterDto;
+import com.eric.todolist.dto.UserDto;
 import com.eric.todolist.entity.User;
 import com.eric.todolist.exception.UserException;
 import com.eric.todolist.exception.UsernameOrPasswordException;
 import com.eric.todolist.service.JwtService;
 import com.eric.todolist.service.UserService;
+import com.eric.todolist.validator.groups.CreateUser;
+import com.eric.todolist.validator.groups.LoginUser;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -27,9 +28,9 @@ public class AuthenticationController {
     private final JwtService jwtService;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponseDto> login(@Valid @RequestBody LoginDto loginRequest) {
+    public ResponseEntity<JwtResponseDto> login(@Validated(LoginUser.class) @RequestBody UserDto userDto) {
         try {
-            User user = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());        
+            User user = userService.authenticateUser(userDto.getUsername(), userDto.getPassword());        
             String jwt = jwtService.generateToken(user);
             return ResponseEntity.ok(new JwtResponseDto(jwt));
         } catch (UsernameOrPasswordException e) {
@@ -38,12 +39,12 @@ public class AuthenticationController {
     }
 
     @PostMapping("register")
-    public ResponseEntity<String> register(@Valid @RequestBody RegisterDto registerRequest) {
-        if (userService.loadUserByUsername(registerRequest.getUsername()).isPresent()) {
+    public ResponseEntity<String> register(@Validated(CreateUser.class) @RequestBody UserDto userDto) {
+        if (userService.loadUserByUsername(userDto.getUsername()).isPresent()) {
             throw new UserException("Username Already Exist");
         }
 
-        userService.registerUser(registerRequest.getUsername(), registerRequest.getPassword());
+        userService.registerUser(userDto.getUsername(), userDto.getPassword());
         return ResponseEntity.ok().body("User Created");
     }
 }

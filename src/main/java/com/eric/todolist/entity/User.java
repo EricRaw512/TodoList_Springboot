@@ -30,7 +30,11 @@ public class User{
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private Role Role;
+    private Role role;
+    
+    private boolean accountNonExpired;
+    private boolean accountNonLocked;
+    private boolean enabled;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

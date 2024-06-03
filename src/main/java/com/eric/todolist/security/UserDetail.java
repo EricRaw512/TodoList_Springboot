@@ -27,6 +27,9 @@ public class UserDetail implements UserDetails{
     private String userName;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
+    private boolean accountNonExpired;
+    private boolean accountNonLocked;
+    private boolean enabled;
 
     public static UserDetail createUserDetail(User user) {
         Collection<? extends GrantedAuthority> authorities  = List.of(new SimpleGrantedAuthority(user.getRole().name()));
@@ -34,7 +37,10 @@ public class UserDetail implements UserDetails{
             user.getId(),
             user.getUsername(),
             user.getPassword(),
-            authorities
+            authorities,
+            user.isAccountNonExpired(),
+            user.isAccountNonLocked(),
+            user.isEnabled()
         );
     }
 
@@ -55,22 +61,23 @@ public class UserDetail implements UserDetails{
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return accountNonExpired;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return accountNonLocked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
+   
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 
     public boolean hasRole(String role) {

@@ -35,7 +35,6 @@ public class SecurityConfig {
             .csrf(crsf -> crsf.disable())
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(WHITE_LIST_URL).permitAll()
-                .requestMatchers("/api/user", "/api/user/**").hasAnyRole("ADMIN")
                 .anyRequest().authenticated()   
             )
             .sessionManagement(manag -> manag.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

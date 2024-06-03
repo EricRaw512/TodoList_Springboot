@@ -2,19 +2,23 @@ package com.eric.todolist.controller;
 
 import java.util.List;
 
-// import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.todolist.dto.UserDto;
 import com.eric.todolist.exception.UserException;
+import com.eric.todolist.security.UserDetail;
 import com.eric.todolist.service.UserService;
+import com.eric.todolist.validator.groups.UpdateUser;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -24,19 +28,27 @@ public class UserController {
     
     private final UserService userService;
 
-    // @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
-    public List<UserDto> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    // @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/{userId}")
-    public UserDto updateUserUsername(@PathVariable("userId") int userid, @Valid @RequestBody UserDto userDto) {
+    @PreAuthorize("#userid == principal.id or hasRole('ROLE_ADMIN')")
+    @PutMapping("/update/{userId}")
+    public ResponseEntity<Void> updateUserPassword(@PathVariable("userId") int userid, @Validated(UpdateUser.class) @RequestBody UserDto userDto, @AuthenticationPrincipal UserDetail user) {
         try {
-            return userService.updateUserUsername(userid, userDto);
+        	userService.updateUserPassword(userid, userDto, user);
+            return ResponseEntity.ok().build();
         } catch (UserException e) {
             throw e;
         }
+    }
+    
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/{userId}")
+    public ResponseEntity<Void> updateUserStatus(@PathVariable("userId") int userId) {
+    	userService.updateUserStatus(userId);
+    	return ResponseEntity.ok().build();
     }
 }
