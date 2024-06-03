@@ -34,6 +34,7 @@ public class ChecklistItemToExcelService extends ExcelReport{
         String[] headers = new String[]{"ID", "Name", "Status"};
         writeTableHeaderExcel("Sheet Checklist Item", "Report Checklist Item", headers);
         writeTableData(data);
+        
         workbook.write(outputStream);
         workbook.close();
         outputStream.close();

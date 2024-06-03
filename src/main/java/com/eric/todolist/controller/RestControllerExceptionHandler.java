@@ -53,7 +53,7 @@ public class RestControllerExceptionHandler{
 
     @ExceptionHandler(UsernameOrPasswordException.class)  
     public ResponseEntity<String> handleUserException(UsernameOrPasswordException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

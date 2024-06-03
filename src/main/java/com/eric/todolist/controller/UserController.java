@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.todolist.dto.UserDto;
-import com.eric.todolist.exception.UserException;
 import com.eric.todolist.security.UserDetail;
 import com.eric.todolist.service.UserService;
 import com.eric.todolist.validator.groups.UpdateUser;
@@ -40,7 +39,7 @@ public class UserController {
         try {
         	userService.updateUserPassword(userid, userDto, user);
             return ResponseEntity.ok().build();
-        } catch (UserException e) {
+        } catch (Exception e) {
             throw e;
         }
     }

@@ -2,7 +2,6 @@ package com.eric.todolist.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -52,6 +51,6 @@ public class ChecklistService {
     private List<CheckListDTO> convertToDto(List<Checklist> allByUserId) {
         return allByUserId.stream()
             .map(checklist -> new CheckListDTO(checklist.getId(), checklist.getName()))
-            .collect(Collectors.toList());
+            .toList();
     }
 }

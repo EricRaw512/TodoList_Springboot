@@ -22,7 +22,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.eric.todolist.dto.CheckListDTO;
-import com.eric.todolist.exception.ChecklistException;
 import com.eric.todolist.security.UserDetail;
 import com.eric.todolist.service.ChecklistReportService;
 import com.eric.todolist.service.ChecklistService;
@@ -57,7 +56,7 @@ public class CheckListController {
     public ResponseEntity<Void> deleteChecklist(@PathVariable int checklistId, @AuthenticationPrincipal UserDetail user) {
         try {
             checklistService.deleteChecklist(checklistId, user);
-        } catch (ChecklistException e ) {
+        } catch (Exception e ) {
             throw e;
         }
 

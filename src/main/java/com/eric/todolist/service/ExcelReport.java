@@ -42,23 +42,25 @@ public class ExcelReport {
         for (int i = 0; i < headers.length; i++) {
             createCell(row, i, headers[i], style);
         }
+        
     }
 
     public void createCell(org.apache.poi.ss.usermodel.Row row, int columnCount, Object value, CellStyle style) {
-        sheet.autoSizeColumn(columnCount);
         org.apache.poi.ss.usermodel.Cell cell = row.createCell(columnCount);
-        if (value instanceof Integer) {
-            cell.setCellValue((Integer) value);
-        } else if (value instanceof Double) {
-            cell.setCellValue((Double) value);
-        } else if (value instanceof Boolean) {
-            cell.setCellValue((Boolean) value);
-        } else if (value instanceof Long) {
-            cell.setCellValue((Long) value);
+        if (value instanceof Integer integerValue) {
+            cell.setCellValue(integerValue);
+        } else if (value instanceof Double doubleValue) {
+            cell.setCellValue(doubleValue);
+        } else if (value instanceof Boolean booleanValue) {
+            cell.setCellValue(booleanValue);
+        } else if (value instanceof Long longValue) {
+            cell.setCellValue(longValue);
         } else {
             cell.setCellValue((String) value);
         }
+        
         cell.setCellStyle(style);
+        sheet.autoSizeColumn(columnCount);
     }
 
     public CellStyle getFontContentExcel() {

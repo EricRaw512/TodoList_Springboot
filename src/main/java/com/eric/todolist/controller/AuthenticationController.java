@@ -46,4 +46,4 @@ public class AuthenticationController {
         userService.registerUser(userDto.getUsername(), userDto.getPassword());
         return ResponseEntity.ok().body("User Created");
     }
-}
+}	

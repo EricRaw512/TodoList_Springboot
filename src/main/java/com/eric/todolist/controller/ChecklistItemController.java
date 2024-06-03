@@ -23,7 +23,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.eric.todolist.dto.ChecklistItemDTO;
-import com.eric.todolist.exception.ChecklistException;
 import com.eric.todolist.security.UserDetail;
 import com.eric.todolist.service.ChecklistItemReportService;
 import com.eric.todolist.service.ChecklistItemService;
@@ -53,7 +52,7 @@ public class ChecklistItemController {
         try {
             ChecklistItemDTO newChecklistItem = checklistItemService.createChecklistItem(checklistId, checklistItemDTO.getItemName(), user);
             return ResponseEntity.ok(newChecklistItem);
-        } catch (ChecklistException e) {
+        } catch (Exception e) {
             throw e;
         }
     }
@@ -61,9 +60,9 @@ public class ChecklistItemController {
     @GetMapping("/{checklistItemId}")
     public ResponseEntity<ChecklistItemDTO> getChecklistItem(@PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId, @AuthenticationPrincipal UserDetail user) {
         try {
-            ChecklistItemDTO checklistItem = checklistItemService.FindChecklist(checklistId, checklistItemId, user);
+            ChecklistItemDTO checklistItem = checklistItemService.findChecklist(checklistId, checklistItemId, user);
             return ResponseEntity.ok(checklistItem);
-        } catch (ChecklistException e) {
+        } catch (Exception e) {
             throw e;
         }
     }
@@ -79,7 +78,7 @@ public class ChecklistItemController {
         try {
             checklistItemService.deleteCheckListItem(checklistId, checklistItemId, user);
             return ResponseEntity.ok().build();
-        } catch (ChecklistException e) {
+        } catch (Exception e) {
             throw e;
         }
     }
@@ -90,7 +89,7 @@ public class ChecklistItemController {
         try {
             ChecklistItemDTO updatedChecklistItem = checklistItemService.updateCheckListItem(checklistId, checklistItemId, checklistItemDTO.getItemName(), user);
             return ResponseEntity.ok(updatedChecklistItem);
-        } catch (ChecklistException e) {
+        } catch (Exception e) {
             throw e;
         }
     }
