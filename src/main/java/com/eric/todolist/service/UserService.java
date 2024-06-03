@@ -3,6 +3,7 @@ package com.eric.todolist.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,10 @@ public class UserService {
         Optional<User> user = loadUserByUsername(username);
         if (!user.isPresent() || !passwordEncoder.matches(password, user.get().getPassword())) {
             throw new UsernameOrPasswordException("Username or password is wrong");
+        }
+        
+        if (!user.get().isEnabled()) {
+        	throw new DisabledException("Your account is disabled");
         }
         
         return user.get();
