@@ -101,12 +101,12 @@ public class ChecklistItemController {
 
     @GetMapping("/export/excel")
     public ResponseEntity<byte[]> exportExcel(@PathVariable int checklistId) throws IOException {
-        String filename = "ChecklistItem-list.xls";
+        String filename = "ChecklistItem-list.xlsx";
         List<ChecklistItemDTO> checklistItems = checklistItemService.getAllCheckListItems(checklistId);
         byte[] excelReport = checklistItemReportService.exportToExcel(checklistItems);
         return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-            .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s", filename))
+            .contentType(MediaType.parseMediaType("application/vns.ms-excel"))
+            .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", filename))
             .body(excelReport);
     }
 }
