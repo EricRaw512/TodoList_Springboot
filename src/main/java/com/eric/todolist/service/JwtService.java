@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -26,10 +27,12 @@ import io.jsonwebtoken.security.SignatureException;
 
 @Service
 public class JwtService {
-    
-	 //Don't Store in here
-	 String privateKeyString = "MGACAQAwEAYHKoZIzj0CAQYFK4EEACMESTBHAgEBBEIAZVBnNC+hGUo4J3fPs0FRluqJqMGggylZ1Gig2V/kNySqM9UndolJBD6QONFOLUSszyg01BA4Z6WArpdGMWmXX4k=";
-	 String publicString = "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQAUyvn+anazFYKW01cLKxXe+btV0U79bybIJvLT2NXAO9QodMj3ByJ76xk3V/PsC0ex1fKjT+V08RbKw8y9jpS70EAqR7zuwY9cXhpCoQL99mbL1uQaotUy0tRKSwrNUJLS9OhnoBuHEsmCu3MJ3xWHcHNCuy5wd3Sr5NLR8o6TH4I0c4=";
+    	 
+	@Value("${privateKey}")
+	 private String privateKeyString;
+	
+	@Value("${publicKey}")
+	 private String publicString;
 	 private long expiration= 6_000_000;
 
     public String generateToken(User user) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException {
