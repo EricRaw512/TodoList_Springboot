@@ -1,4 +1,4 @@
-package com.eric.todolist.security;
+	package com.eric.todolist.security;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,6 +10,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 
 import com.eric.todolist.service.JwtService;
+import com.eric.todolist.service.UserDetailService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,10 +35,6 @@ public class JwtAuthFilter extends OncePerRequestFilter{
                 String username = jwtService.extractUsername(token);
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails user = userDetailService.loadUserByUsername(username);
-                    if (user == null) {
-                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        return;	
-                    }
 
                     if (jwtService.validateToken(token, user)) {
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
