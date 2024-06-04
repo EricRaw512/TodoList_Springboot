@@ -37,7 +37,7 @@ public class ChecklistService {
     public void deleteChecklist(int checklistId, UserDetail user) {
         Optional<Checklist> checklistOptional = checklistRepository.findById(checklistId);
         if (!checklistOptional.isPresent()) {
-            throw new ChecklistException("Checklist id " + checklistId + " not found");
+            throw new ChecklistException("Cannot fimd checklist with id " + checklistId);
         }
         
         Checklist checklist = checklistOptional.get();
