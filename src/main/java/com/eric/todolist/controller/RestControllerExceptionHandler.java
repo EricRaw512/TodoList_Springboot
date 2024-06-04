@@ -15,6 +15,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import com.eric.todolist.exception.ChecklistException;
 import com.eric.todolist.exception.UserException;
 import com.eric.todolist.exception.UsernameOrPasswordException;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.io.IOException;
@@ -90,4 +92,18 @@ public class RestControllerExceptionHandler{
     public ResponseEntity<String> handleDisabledException(DisabledException ex) {
     	return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
+    
+    @ExceptionHandler(CsvDataTypeMismatchException.class)
+    public ResponseEntity<String> handleDisabledException(CsvDataTypeMismatchException ex) {
+    	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+    
+    @ExceptionHandler(CsvRequiredFieldEmptyException.class)
+    public ResponseEntity<String> handleDisabledException(CsvRequiredFieldEmptyException ex) {
+    	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+    
+    
+    
+    
 }   

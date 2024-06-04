@@ -1,13 +1,9 @@
 package com.eric.todolist.controller;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,17 +14,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.eric.todolist.dto.CheckListDTO;
+import com.eric.todolist.mappingstrategy.CustomMappingStrategy;
 import com.eric.todolist.security.UserDetail;
+import com.eric.todolist.service.CSVService;
 import com.eric.todolist.service.ChecklistReportService;
 import com.eric.todolist.service.ChecklistService;
-import com.opencsv.bean.StatefulBeanToCsvBuilder;
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -39,6 +33,7 @@ public class CheckListController {
     
     private final ChecklistService checklistService;
     private final ChecklistReportService checklistReportService;
+    private final CSVService csvService;
 
     @GetMapping
     public ResponseEntity<List<CheckListDTO>> getAllCheckLists(@AuthenticationPrincipal UserDetail user) {
@@ -63,38 +58,15 @@ public class CheckListController {
         return ResponseEntity.ok().build();
     }
     
-    //Export Large CSV File
     @GetMapping("/export/csv")
-    public ResponseEntity<StreamingResponseBody> exportCSV(@AuthenticationPrincipal UserDetail user) {
-        String filename = "Checklist-list.csv";
-        StreamingResponseBody stream = outputStream -> {
-            List<CheckListDTO> checklists = checklistService.getAllChecklistsByUsername(user);
-            try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-               new StatefulBeanToCsvBuilder<CheckListDTO>(writer)
-                                .build().write(checklists);
-            } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-            } 
-        };
-
-        return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
-            .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s", filename))
-            .header(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, HttpHeaders.CONTENT_DISPOSITION)
-            .body(stream);
+    public void exportCSV(HttpServletResponse response, @AuthenticationPrincipal UserDetail user) throws Exception {
+    	String filename = "Checklist-list.csv";
+    	response.setContentType("text/csv; charset=UTF-8");
+    	CustomMappingStrategy<CheckListDTO> mappingStrategy = new CustomMappingStrategy<>();
+    	mappingStrategy.setType(CheckListDTO.class);
+    	response.setHeader(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", filename));
+    	csvService.beanToCsv(response.getWriter(), checklistService.getAllChecklistsByUsername(user), mappingStrategy);
     }
-    
-// Export Small CSV File
-//    @GetMapping("/export/csv")
-//    public void exportCsv(HttpServletResponse response, @AuthenticationPrincipal UserDetail user) throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
-//    	String filename = "Checklist-list.csv";
-//    	response.setContentType("text/csv");
-//    	response.setHeader(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s", filename));
-//    	List<CheckListDTO> checkListDTOs = checklistService.getAllChecklistsByUsername(user);
-//    	StatefulBeanToCsv<CheckListDTO> beanToCsv = new StatefulBeanToCsvBuilder<CheckListDTO>(response.getWriter()).build();
-//    	beanToCsv.write(checkListDTOs);
-//    	response.getWriter().close();
-//    }
 
     @GetMapping("/export/excel")
     public ResponseEntity<byte[]> exportExcel(@AuthenticationPrincipal UserDetail user) throws IOException {
