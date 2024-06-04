@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.todolist.dto.UserDto;
+import com.eric.todolist.exception.UserException;
+import com.eric.todolist.exception.UsernameOrPasswordException;
 import com.eric.todolist.security.UserDetail;
 import com.eric.todolist.service.UserService;
 import com.eric.todolist.validator.groups.UpdateUser;
@@ -35,13 +37,9 @@ public class UserController {
 
     @PreAuthorize("#userid == principal.id or hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{userId}")
-    public ResponseEntity<Void> updateUserPassword(@PathVariable("userId") int userid, @Validated(UpdateUser.class) @RequestBody UserDto userDto, @AuthenticationPrincipal UserDetail user) {
-        try {
-        	userService.updateUserPassword(userid, userDto, user);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            throw e;
-        }
+    public ResponseEntity<Void> updateUserPassword(@PathVariable("userId") int userid, @Validated(UpdateUser.class) @RequestBody UserDto userDto, @AuthenticationPrincipal UserDetail user) throws UsernameOrPasswordException, UserException {
+    	userService.updateUserPassword(userid, userDto, user);
+        return ResponseEntity.ok().build();
     }
     
     @PreAuthorize("hasRole('ROLE_ADMIN')")

@@ -16,11 +16,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.todolist.dto.CheckListDTO;
+import com.eric.todolist.exception.ChecklistException;
 import com.eric.todolist.mappingstrategy.CustomMappingStrategy;
 import com.eric.todolist.security.UserDetail;
 import com.eric.todolist.service.CSVService;
 import com.eric.todolist.service.ChecklistReportService;
 import com.eric.todolist.service.ChecklistService;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -48,18 +51,13 @@ public class CheckListController {
     }
 
     @DeleteMapping("/{checklistId}")
-    public ResponseEntity<Void> deleteChecklist(@PathVariable int checklistId, @AuthenticationPrincipal UserDetail user) {
-        try {
-            checklistService.deleteChecklist(checklistId, user);
-        } catch (Exception e ) {
-            throw e;
-        }
-
+    public ResponseEntity<Void> deleteChecklist(@PathVariable int checklistId, @AuthenticationPrincipal UserDetail user) throws ChecklistException{
+        checklistService.deleteChecklist(checklistId, user);
         return ResponseEntity.ok().build();
     }
     
     @GetMapping("/export/csv")
-    public void exportCSV(HttpServletResponse response, @AuthenticationPrincipal UserDetail user) throws Exception {
+    public void exportCSV(HttpServletResponse response, @AuthenticationPrincipal UserDetail user) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException {
     	String filename = "Checklist-list.csv";
     	response.setContentType("text/csv; charset=UTF-8");
     	CustomMappingStrategy<CheckListDTO> mappingStrategy = new CustomMappingStrategy<>();

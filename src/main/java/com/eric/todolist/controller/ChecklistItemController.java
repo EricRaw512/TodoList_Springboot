@@ -17,11 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eric.todolist.dto.ChecklistItemDTO;
+import com.eric.todolist.exception.ChecklistException;
 import com.eric.todolist.mappingstrategy.CustomMappingStrategy;
 import com.eric.todolist.security.UserDetail;
 import com.eric.todolist.service.CSVService;
 import com.eric.todolist.service.ChecklistItemReportService;
 import com.eric.todolist.service.ChecklistItemService;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -43,23 +46,15 @@ public class ChecklistItemController {
     }
 
     @PostMapping
-    public ResponseEntity<ChecklistItemDTO> createChecklistItem(@PathVariable int checklistId, @Valid @RequestBody ChecklistItemDTO checklistItemDTO, @AuthenticationPrincipal UserDetail user) {
-        try {
-            ChecklistItemDTO newChecklistItem = checklistItemService.createChecklistItem(checklistId, checklistItemDTO.getItemName(), user);
-            return ResponseEntity.ok(newChecklistItem);
-        } catch (Exception e) {
-            throw e;
-        }
+    public ResponseEntity<ChecklistItemDTO> createChecklistItem(@PathVariable int checklistId, @Valid @RequestBody ChecklistItemDTO checklistItemDTO, @AuthenticationPrincipal UserDetail user) throws ChecklistException {
+        ChecklistItemDTO newChecklistItem = checklistItemService.createChecklistItem(checklistId, checklistItemDTO.getItemName(), user);
+        return ResponseEntity.ok(newChecklistItem);
     }
 
     @GetMapping("/{checklistItemId}")
-    public ResponseEntity<ChecklistItemDTO> getChecklistItem(@PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId, @AuthenticationPrincipal UserDetail user) {
-        try {
-            ChecklistItemDTO checklistItem = checklistItemService.findChecklist(checklistId, checklistItemId, user);
-            return ResponseEntity.ok(checklistItem);
-        } catch (Exception e) {
-            throw e;
-        }
+    public ResponseEntity<ChecklistItemDTO> getChecklistItem(@PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId, @AuthenticationPrincipal UserDetail user) throws ChecklistException {
+        ChecklistItemDTO checklistItem = checklistItemService.findChecklist(checklistId, checklistItemId, user);
+        return ResponseEntity.ok(checklistItem);
     }
 
     @PutMapping("/{checklistItemId}")
@@ -69,28 +64,20 @@ public class ChecklistItemController {
     }
 
     @DeleteMapping("/{checklistItemId}")
-    public ResponseEntity<Void> deleteChecklistItem(@PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId, @AuthenticationPrincipal UserDetail user) {
-        try {
-            checklistItemService.deleteCheckListItem(checklistId, checklistItemId, user);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            throw e;
-        }
+    public ResponseEntity<Void> deleteChecklistItem(@PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId, @AuthenticationPrincipal UserDetail user) throws ChecklistException {
+        checklistItemService.deleteCheckListItem(checklistId, checklistItemId, user);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/rename/{checklistItemId}")
     public ResponseEntity<ChecklistItemDTO> renameChecklistItem(@PathVariable("checklistId") int checklistId, @PathVariable("checklistItemId") int checklistItemId, 
-                            @Valid @RequestBody ChecklistItemDTO checklistItemDTO, @AuthenticationPrincipal UserDetail user) {
-        try {
-            ChecklistItemDTO updatedChecklistItem = checklistItemService.updateCheckListItem(checklistId, checklistItemId, checklistItemDTO.getItemName(), user);
-            return ResponseEntity.ok(updatedChecklistItem);
-        } catch (Exception e) {
-            throw e;
-        }
+                            @Valid @RequestBody ChecklistItemDTO checklistItemDTO, @AuthenticationPrincipal UserDetail user) throws ChecklistException {
+        ChecklistItemDTO updatedChecklistItem = checklistItemService.updateCheckListItem(checklistId, checklistItemId, checklistItemDTO.getItemName(), user);
+        return ResponseEntity.ok(updatedChecklistItem);
     }
     
     @GetMapping("/export/csv")
-    public void exportCSV(HttpServletResponse response, @PathVariable int checklistId) throws Exception {
+    public void exportCSV(HttpServletResponse response, @PathVariable int checklistId) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException {
     	String filename = "ChecklistItem-list.csv";
     	response.setContentType("text/csv; charset=UTF-8");
     	CustomMappingStrategy<ChecklistItemDTO> mappingStrategy = new CustomMappingStrategy<>();

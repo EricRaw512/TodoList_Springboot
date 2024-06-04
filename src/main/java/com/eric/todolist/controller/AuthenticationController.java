@@ -1,5 +1,8 @@
 package com.eric.todolist.controller;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +18,7 @@ import com.eric.todolist.service.UserService;
 import com.eric.todolist.validator.groups.CreateUser;
 import com.eric.todolist.validator.groups.LoginUser;
 
+import io.jsonwebtoken.security.InvalidKeyException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -26,7 +30,7 @@ public class AuthenticationController {
     private final JwtService jwtService;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponseDto> login(@Validated(LoginUser.class) @RequestBody UserDto userDto) throws Exception {
+    public ResponseEntity<JwtResponseDto> login(@Validated(LoginUser.class) @RequestBody UserDto userDto) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException {
         userService.authenticateUser(userDto.getUsername(), userDto.getPassword());        
         String jwt = jwtService.generateToken(userDto);
         return ResponseEntity.ok(new JwtResponseDto(jwt));

@@ -23,7 +23,7 @@ public class ChecklistItemToExcelService extends ExcelReport{
             int columnCount = 0;
             createCell(row, columnCount++, checkListItemDTO.getId(), style);
             createCell(row, columnCount++, checkListItemDTO.getItemName(), style);
-            createCell(row, columnCount++, checkListItemDTO.isCompleted(), style);
+            createCell(row, columnCount, checkListItemDTO.isCompleted(), style);
         }
     }
 

@@ -28,13 +28,9 @@ public class ChecklistItemService {
                 .toList();
     }
 
-    public ChecklistItemDTO createChecklistItem(int checklistId, String checklistItemName, UserDetail user) {
+    public ChecklistItemDTO createChecklistItem(int checklistId, String checklistItemName, UserDetail user) throws ChecklistException {
         Optional<Checklist> checklistOptional = checklistRepository.findById(checklistId);
-        try {
-            checkUserAndChecklistAuth(user, checklistOptional, checklistId);
-        } catch (ChecklistException e) {
-            throw e;
-        }
+        checkUserAndChecklistAuth(user, checklistOptional, checklistId);
 
         ChecklistItem checklistItem = new ChecklistItem();
         checklistItem.setItemName(checklistItemName);
@@ -44,22 +40,14 @@ public class ChecklistItemService {
         return convertToDto(checklistItem);
     }
 
-    public ChecklistItemDTO findChecklist(int checklistId, int checklistItemId, UserDetail user) {
-        try {
-            ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, user);
-            return convertToDto(checklistItem);
-        } catch (Exception e) {
-            throw e;
-        }
+    public ChecklistItemDTO findChecklist(int checklistId, int checklistItemId, UserDetail user) throws ChecklistException {
+        ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, user);
+        return convertToDto(checklistItem);
     }
 
-    public ChecklistItem getCheckListItem(int checklistId, int checklistItemId, UserDetail user) {
+    public ChecklistItem getCheckListItem(int checklistId, int checklistItemId, UserDetail user) throws ChecklistException {
         Optional<Checklist> checklistOptional = checklistRepository.findById(checklistId);
-        try {
-            checkUserAndChecklistAuth(user, checklistOptional, checklistId);
-        } catch (ChecklistException e) {
-            throw e;
-        }
+        checkUserAndChecklistAuth(user, checklistOptional, checklistId);
         
         Optional<ChecklistItem> checklistItem= checklistItemRepository.findById(checklistItemId);
         if (!checklistItem.isPresent()) {
@@ -69,35 +57,23 @@ public class ChecklistItemService {
         return checklistItem.get();
     }
 
-    public ChecklistItemDTO updateCheckListItemStatus(int checklistId, int checklistItemId, UserDetail user) {
-        try {
-            ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, user);
-            checklistItem.setCompleted(!checklistItem.isCompleted());
-            checklistItemRepository.save(checklistItem);
-            return convertToDto(checklistItem);
-        } catch (Exception e) {
-            throw e;
-        }
+    public ChecklistItemDTO updateCheckListItemStatus(int checklistId, int checklistItemId, UserDetail user) throws ChecklistException {
+        ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, user);
+        checklistItem.setCompleted(!checklistItem.isCompleted());
+        checklistItemRepository.save(checklistItem);
+        return convertToDto(checklistItem);
     }
 
-    public void deleteCheckListItem(int checklistId, int checklistItemId, UserDetail user) {
-        try {
-            ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, user);
-            checklistItemRepository.deleteById(checklistItem.getId());
-        } catch (Exception e) {
-            throw e;
-        }
+    public void deleteCheckListItem(int checklistId, int checklistItemId, UserDetail user) throws ChecklistException {
+        ChecklistItem checklistItem = getCheckListItem(checklistId, checklistItemId, user);
+        checklistItemRepository.deleteById(checklistItem.getId());
     }
 
-    public ChecklistItemDTO updateCheckListItem(int checklistId, int checklistItemId, String newItemName, UserDetail user) {
-        try {
-            ChecklistItem currentChecklistItem = getCheckListItem(checklistId, checklistItemId, user);
-            currentChecklistItem.setItemName(newItemName);
-            checklistItemRepository.save(currentChecklistItem);
-            return convertToDto(currentChecklistItem);
-        } catch (Exception e) {
-            throw e;
-        }
+    public ChecklistItemDTO updateCheckListItem(int checklistId, int checklistItemId, String newItemName, UserDetail user) throws ChecklistException {
+        ChecklistItem currentChecklistItem = getCheckListItem(checklistId, checklistItemId, user);
+        currentChecklistItem.setItemName(newItemName);
+        checklistItemRepository.save(currentChecklistItem);
+        return convertToDto(currentChecklistItem);
     }
 
 
