@@ -14,8 +14,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.eric.todolist.dto.UserDto;
 import com.eric.todolist.entity.User;
+import com.eric.todolist.security.UserDetail;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -35,20 +38,21 @@ public class JwtService {
 	 private String publicString;
 	 private long expiration= 6_000_000;
 
-    public String generateToken(User user) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException {
+    public String generateToken(UserDto user) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException {	
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", user.getId());
         claims.put("username", user.getUsername());
-        claims.put("roles", user.getRole());
         return createToken(claims, user.getUsername());
     }
 
     private String createToken(Map<String, Object> claims, String username) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException {
-        return Jwts.builder()
+        Date expiredDate = new Date(System.currentTimeMillis() + expiration);
+    	return Jwts.builder()
                 .setClaims(claims)
+                .claim("Expired Date", expiredDate)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(expiredDate)
                 .signWith(getPrivateSignKey(), SignatureAlgorithm.ES512)
                 .compact();
     }

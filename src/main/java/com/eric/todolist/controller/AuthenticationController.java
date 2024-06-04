@@ -28,8 +28,8 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponseDto> login(@Validated(LoginUser.class) @RequestBody UserDto userDto) throws Exception {
-        User user = userService.authenticateUser(userDto.getUsername(), userDto.getPassword());        
-        String jwt = jwtService.generateToken(user);
+        userService.authenticateUser(userDto.getUsername(), userDto.getPassword());        
+        String jwt = jwtService.generateToken(userDto);
         return ResponseEntity.ok(new JwtResponseDto(jwt));
     }
 
