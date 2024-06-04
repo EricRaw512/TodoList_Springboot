@@ -15,10 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.eric.todolist.dto.UserDto;
-import com.eric.todolist.entity.User;
-import com.eric.todolist.security.UserDetail;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -46,13 +43,11 @@ public class JwtService {
     }
 
     private String createToken(Map<String, Object> claims, String username) throws InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException {
-        Date expiredDate = new Date(System.currentTimeMillis() + expiration);
     	return Jwts.builder()
                 .setClaims(claims)
-                .claim("Expired Date", expiredDate)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(expiredDate)
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getPrivateSignKey(), SignatureAlgorithm.ES512)
                 .compact();
     }
