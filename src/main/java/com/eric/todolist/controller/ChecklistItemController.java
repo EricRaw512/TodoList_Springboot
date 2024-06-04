@@ -105,7 +105,7 @@ public class ChecklistItemController {
         List<ChecklistItemDTO> checklistItems = checklistItemService.getAllCheckListItems(checklistId);
         byte[] excelReport = checklistItemReportService.exportToExcel(checklistItems);
         return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType("application/vns.ms-excel"))
+            .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
             .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", filename))
             .body(excelReport);
     }
