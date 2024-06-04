@@ -2,8 +2,6 @@ package com.eric.todolist.entity;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -35,8 +33,7 @@ public class User{
     private boolean accountNonExpired;
     private boolean accountNonLocked;
     private boolean enabled;
-
-    @JsonIgnore
+    
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Checklist> checklists; 
 }

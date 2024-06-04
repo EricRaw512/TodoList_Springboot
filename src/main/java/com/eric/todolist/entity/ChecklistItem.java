@@ -1,7 +1,5 @@
 package com.eric.todolist.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,7 +24,6 @@ public class ChecklistItem {
     private boolean completed;
 
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "checklist_id", nullable = false)
     private Checklist checklist;
 }
