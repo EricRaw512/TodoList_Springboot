@@ -25,6 +25,8 @@ public class Checklist {
     private int id;
     
     private String name;
+
+    //TEST
     
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
