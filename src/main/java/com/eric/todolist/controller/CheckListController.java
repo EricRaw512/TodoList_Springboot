@@ -63,8 +63,10 @@ public class CheckListController {
     	CustomMappingStrategy<CheckListDTO> mappingStrategy = new CustomMappingStrategy<>();
     	mappingStrategy.setType(CheckListDTO.class);
     	response.setHeader(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", filename));
-	    	csvService.beanToCsv(response.getWriter(), checklistService.getAllChecklistsByUsername(user), mappingStrategy);
-	    }
+    	csvService.beanToCsv(response.getWriter(), checklistService.getAllChecklistsByUsername(user), mappingStrategy);
+    }
+
+    //test
 
     @GetMapping("/export/excel")
     public ResponseEntity<byte[]> exportExcel(@AuthenticationPrincipal UserDetail user) throws IOException {
