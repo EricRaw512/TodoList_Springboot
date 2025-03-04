@@ -1,57 +1,64 @@
 package com.eric.todolist.service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import com.eric.todolist.config.security.UserDetail;
+import com.eric.todolist.exception.GlobalException;
+import com.eric.todolist.model.dto.request.ChecklistSearchRequest;
+import com.eric.todolist.model.entity.Checklist;
+import com.eric.todolist.model.entity.Users;
+import com.eric.todolist.repository.ChecklistRepository;
+import com.eric.todolist.repository.UserRepository;
+import com.eric.todolist.specification.ChecklistSpecification;
+import com.eric.todolist.util.constant.GlobalMessage;
+import com.eric.todolist.util.enums.StatusCode;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.eric.todolist.dao.ChecklistRepository;
-import com.eric.todolist.dao.UserRepository;
-import com.eric.todolist.dto.CheckListDTO;
-import com.eric.todolist.entity.Checklist;
-import com.eric.todolist.entity.User;
-import com.eric.todolist.exception.ChecklistException;
-import com.eric.todolist.security.UserDetail;
-
-import lombok.RequiredArgsConstructor;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ChecklistService {
-    
+
     private final ChecklistRepository checklistRepository;
+    private final ChecklistSpecification checklistSpecification;
     private final UserRepository userRepository;
 
-    public List<CheckListDTO> getAllChecklistsByUsername(UserDetail user) {
-        return convertToDto(checklistRepository.findAllByUserId(user.getId()));
+    public Page<Checklist> getAllChecklistsByUsername(UserDetail user, Pageable sanitizedPage, ChecklistSearchRequest request) {
+        Specification<Checklist> spec = checklistSpecification.searchUser(user.getId())
+                .and(checklistSpecification.searchName(request.getSearch()));
+        return checklistRepository.findAll(spec, sanitizedPage);
     }
 
     public void createChecklist(String checklistName, UserDetail userDetail) {
-        Optional<User> user = userRepository.findById(userDetail.getId());
+        Optional<Users> user = userRepository.findById(userDetail.getId());
+        if (user.isEmpty()) {
+            throw new GlobalException(StatusCode.INTERNAL_SERVER_ERROR, GlobalMessage.ExceptionMessage.USER_NOT_FOUND);
+        }
+
         Checklist checklist = new Checklist();
         checklist.setName(checklistName);
-        checklist.setUser(user.get());
+        checklist.setUsers(user.get());
         checklistRepository.save(checklist);
     }
 
     public void deleteChecklist(int checklistId, UserDetail user) {
         Optional<Checklist> checklistOptional = checklistRepository.findById(checklistId);
-        if (!checklistOptional.isPresent()) {
-            throw new ChecklistException("Checklist id " + checklistId + " not found");
+        if (checklistOptional.isEmpty()) {
+            throw new GlobalException(StatusCode.BAD_REQUEST, String.format(GlobalMessage.ExceptionMessage.CHECKLIST_NOT_FOUND, checklistId));
         }
-        
+
         Checklist checklist = checklistOptional.get();
-        if (!checklist.getUser().getUsername().equals(user.getUsername())) {
-            throw new ChecklistException("User doesn't match with Checklist user");
+        if (!checklist.getUsers().getUsername().equals(user.getUsername())) {
+            throw new GlobalException(StatusCode.BAD_REQUEST, GlobalMessage.ExceptionMessage.USER_NOT_MATCH);
         }
 
         checklistRepository.delete(checklist);
     }
-    
-    private List<CheckListDTO> convertToDto(List<Checklist> allByUserId) {
-        return allByUserId.stream()
-            .map(checklist -> new CheckListDTO(checklist.getId(), checklist.getName()))
-            .collect(Collectors.toList());
+
+    public Optional<Checklist> findById(int checklistId) {
+        return checklistRepository.findById(checklistId);
     }
 }
