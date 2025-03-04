@@ -1,27 +1,27 @@
 package com.eric.todolist.service;
 
+import com.eric.todolist.config.jwt.JwtProperties;
+import com.eric.todolist.model.entity.Users;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-
-import com.eric.todolist.entity.User;
-
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-
 @Service
+@RequiredArgsConstructor
 public class JwtService {
-    
-    private String secretKey = "68745C17B3A56AD2723096E2BD6D7BE42603CB1991EBF577DDE3B6C86D781DBE";
-    private long expiration= 6_000_000;
 
-    public String generateToken(User user) {
+    private final JwtProperties jwtProperties;
+
+    public String generateToken(Users user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", user.getId());
         claims.put("username", user.getUsername());
@@ -34,41 +34,38 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration()))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecretKey());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
         Date expirationDate = extractExpiration(token);
-        if (expirationDate.before(new Date())) {
-            return false;
-        }
-
         String username = extractUsername(token);
-        return userDetails.getUsername().equals(username) && !expirationDate.before(new Date());
+        return !expirationDate.before(new Date()) &&
+                userDetails.getUsername().equals(username);
     }
 
     public String extractUsername(String token) {
         return Jwts.parserBuilder()
-        .setSigningKey(getSignKey())
-        .build()
-        .parseClaimsJws(token)
-        .getBody()
-        .getSubject();
-}
-    
+                .setSigningKey(getSignKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
     public Date extractExpiration(String token) {
         return Jwts.parserBuilder()
-        .setSigningKey(getSignKey())
-        .build()
-        .parseClaimsJws(token)
-        .getBody()
-        .getExpiration();
+                .setSigningKey(getSignKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
     }
 }

@@ -1,21 +1,21 @@
 package com.eric.todolist.service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-// import org.springframework.security.access.prepost.PreAuthorize;
+import com.eric.todolist.exception.GlobalException;
+import com.eric.todolist.exception.InvalidCredentialsException;
+import com.eric.todolist.model.dto.request.UserRequest;
+import com.eric.todolist.model.entity.Users;
+import com.eric.todolist.model.enums.Role;
+import com.eric.todolist.repository.UserRepository;
+import com.eric.todolist.util.constant.GlobalMessage;
+import com.eric.todolist.util.enums.StatusCode;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.eric.todolist.dao.UserRepository;
-import com.eric.todolist.dto.UserDto;
-import com.eric.todolist.entity.Role;
-import com.eric.todolist.entity.User;
-import com.eric.todolist.exception.UserException;
-import com.eric.todolist.exception.UsernameOrPasswordException;
-
-import lombok.RequiredArgsConstructor;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,21 +24,21 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Optional<User> loadUserByUsername(String username) {
+    public Optional<Users> loadUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
-    public User authenticateUser(String username, String password) {
-        Optional<User> user = loadUserByUsername(username);
-        if (!user.isPresent() || !passwordEncoder.matches(password, user.get().getPassword())) {
-            throw new UsernameOrPasswordException("Username or password is wrong");
+    public Users authenticateUser(String username, String password) {
+        Optional<Users> user = loadUserByUsername(username);
+        if (user.isEmpty() || !passwordEncoder.matches(password, user.get().getPassword())) {
+            throw new InvalidCredentialsException(GlobalMessage.ExceptionMessage.USERNAME_OR_PASSWORD_WRONG);
         }
-        
+
         return user.get();
     }
 
     public void registerUser(String username, String password) {
-        User newUser = new User();
+        Users newUser = new Users();
         newUser.setUsername(username);
         String encodedPassword = passwordEncoder.encode(password);
         newUser.setPassword(encodedPassword);
@@ -46,29 +46,17 @@ public class UserService {
         userRepository.save(newUser);
     }
 
-    public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream()
-            .map(user -> ConverToDto(user))
-            .collect(Collectors.toList());
+    public Page<Users> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 
-    // @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public UserDto updateUserUsername(int userId, UserDto userDto) {
-        Optional<User> user = userRepository.findById(userId);
-        if (!user.isPresent()) {
-            throw new UserException("Cannot Find User with id" + userId);
+    public Users updateUserUsername(int userId, @Valid UserRequest request) {
+        Optional<Users> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new GlobalException(StatusCode.BAD_REQUEST, String.format(GlobalMessage.ExceptionMessage.USER_NOT_EXIST, userId));
         }
 
-        user.get().setUsername(userDto.getUsername());
-        userRepository.save(user.get());
-        return userDto;
-    }
-
-    private UserDto ConverToDto(User user) {
-        UserDto userDto = new UserDto();
-        userDto.setId(user.getId());
-        userDto.setRole(user.getRole());
-        userDto.setUsername(user.getUsername());
-        return userDto;
+        user.get().setUsername(request.getUsername());
+        return userRepository.save(user.get());
     }
 }

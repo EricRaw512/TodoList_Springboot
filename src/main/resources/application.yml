@@ -2,10 +2,26 @@ spring:
     application:
         name: To Do List
     datasource:
-        url: jdbc:mysql://localhost:3306/todo_list
-        username: root
+        url: jdbc:postgresql://localhost:5432/todo_list
+        username: postgres
         password: admin
-        driver-class-name: com.mysql.cj.jdbc.Driver
     jpa:
         hibernate:
             ddl-auto: update
+    flyway:
+        enabled: true
+        locations: classpath:db/migration
+        baseline-on-migrate: true
+        clean-disabled: false
+        clean-on-validation-error: true
+        validate-on-migrate: true
+
+springdoc:
+    api-docs:
+        groups:
+            enabled: true
+
+# Best use environment variables or use 3rd party
+jwt:
+    secret-key: "68745C17B3A56AD2723096E2BD6D7BE42603CB1991EBF577DDE3B6C86D781DBE"
+    expiration: 6000000
