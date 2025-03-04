@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS flyway_schema_history (
 	execution_time int4 NOT NULL,
 	success bool NOT NULL,
 	CONSTRAINT flyway_schema_history_pk PRIMARY KEY (installed_rank)
-);x
+);
 
 -----------------
 -- CACHE TABLE --
